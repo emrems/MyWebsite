@@ -1,0 +1,16 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# .NET build
+bin/
+obj/
+
+# Node / Vue
+node_modules/
+dist/
+
+# Diğer geçici
+*.log
