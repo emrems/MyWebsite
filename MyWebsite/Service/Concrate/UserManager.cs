@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyWebsite.Dtos.UserDtos;
 using MyWebsite.Entities;
+using MyWebsite.Exceptions;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
 
@@ -14,54 +16,70 @@ namespace MyWebsite.Service.Concrate
             _manager = manager;
         }
 
-        public async Task CreateUser(User user)
+        public async Task CreateUser(CreateUserDto user)
         {
-           await _manager.User.CreateUser(user);
+            var userCreate = new User
+            {
+                Username = user.Username,
+                Email = user.Email,
+                PasswordHash = user.Password,
+                CreatedDate = DateTime.Now,
+                Role = "User"
+            };
+            await _manager.UserRepository.CreateUser(userCreate);
             await _manager.SaveAsync();
         }
 
-        public async Task DeleteUser(User user)
+        public async Task DeleteUser(int id)
         {
-            var userDb = await _manager.User.GetUserById(user.Id);
+            var userDb = await _manager.UserRepository.GetUserById(id);
 
             if(userDb is null)
             {
-                throw new Exception("silinecek user bulunamadı");
+                throw new NotFoundException("silinecek user bulunamadı");
             }
-            await _manager.User.DeleteUser(user);
+            await _manager.UserRepository.DeleteUser(userDb);
             await _manager.SaveAsync();
 
         }
 
         public async Task<IEnumerable<User>> GetAllUsers()
         {
-            return await _manager.User.GetAllUsers();
+            return await _manager.UserRepository.GetAllUsers();
         }
 
-        public Task<User> GetUserById(int id)
+        public async Task<User> GetUserById(int id)
         {
-            var user = _manager.User.GetUserById(id);
-            if(user is null)
-            {
-                throw new Exception();
-            }
+            var user = await _manager.UserRepository.GetUserById(id);
+            if (user == null)
+                throw new NotFoundException($"{id}' li kullanıcı bulunamadı");
+
             return user;
         }
 
 
 
-        public async Task UpdateUser(User user)
+
+        public async Task UpdateUser(UpdateUserDto userDto)
         {
-            if(user is null)
+            if(userDto is null)
             {
                 throw new Exception("user boş olamaz");
             }
-            var userDb = _manager.User.GetUserById(user.Id);
+            var userDb = await _manager.UserRepository.GetUserById(userDto.Id);
             if(userDb is null)
             {
-                throw new Exception("güncellenecek user bulunamadı");
+                throw new NotFoundException("güncellenecek user bulunamadı");
             }
-             await _manager.User.UpdateUser(user);
+            userDb.Id = userDto.Id;
+            userDb.Username = userDto.UserName;
+            userDb.Email = userDto.UserEmail;
+            userDb.PasswordHash = userDto.Password;
+           
+
+
+            await _manager.UserRepository.UpdateUser(userDb);
+            await _manager.SaveAsync();
         }
     }
 }

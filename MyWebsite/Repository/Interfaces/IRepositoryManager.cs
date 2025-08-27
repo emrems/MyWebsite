@@ -2,7 +2,9 @@
 {
     public interface IRepositoryManager
     {
-        IUserRepository User { get; }
+        IUserRepository UserRepository { get; }
+        IProjectRepository ProjectRepository { get; }
+        ICategoryRepository CategoryRepository { get; }
         Task SaveAsync();
     }
 }

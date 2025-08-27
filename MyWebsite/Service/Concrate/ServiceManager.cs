@@ -7,12 +7,20 @@ namespace MyWebsite.Service.Concrate
 
     {
         private readonly Lazy<IUserService> _userService;
+        private readonly Lazy<IProjectService> _projectService;
+        private readonly Lazy<ICategoryService> _categoryService;
 
         public ServiceManager(IRepositoryManager manager)
         {
             _userService = new Lazy<IUserService>(() => new UserManager(manager));
+            _projectService = new Lazy<IProjectService>(() => new ProjectManager(manager));
+            _categoryService = new Lazy<ICategoryService>(() => new CategoryManager(manager));
         }
 
-        public IUserService User => _userService.Value;
+        public IUserService UserService => _userService.Value;
+
+        public IProjectService ProjectService => _projectService.Value;
+
+        public ICategoryService CategoryService => _categoryService.Value;
     }
 }

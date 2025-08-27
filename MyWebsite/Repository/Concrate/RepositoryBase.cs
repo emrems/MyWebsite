@@ -6,7 +6,7 @@ namespace MyWebsite.Repository.Concrate
     public class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
         where TEntity : class
     {
-        private readonly MyWebSiteData _DbContext;
+        protected readonly MyWebSiteData _DbContext;
 
         public RepositoryBase(MyWebSiteData dbContext)
         {

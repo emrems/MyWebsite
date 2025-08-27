@@ -2,7 +2,10 @@
 {
     public interface IServiceManager
     {
-        IUserService User { get; }
+        IUserService UserService { get; }
+        IProjectService ProjectService { get; }
+        ICategoryService CategoryService { get; }
+
 
     }
 }
