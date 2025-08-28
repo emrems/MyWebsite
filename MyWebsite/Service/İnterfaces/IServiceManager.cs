@@ -5,6 +5,7 @@
         IUserService UserService { get; }
         IProjectService ProjectService { get; }
         ICategoryService CategoryService { get; }
+        IArticleService ArticleService { get; }
 
 
     }

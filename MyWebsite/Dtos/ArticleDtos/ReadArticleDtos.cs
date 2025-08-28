@@ -2,9 +2,10 @@
 {
     public class ReadArticleDtos
     {
-        public string Title { get; set; } = "";       // Yazı başlığı
-        public string Content { get; set; } = "";     // Yazı içeriği (Markdown destekli olabilir)
-        public string Slug { get; set; } = "";        // URL dostu başlık
+        public int Id { get; set; }
+        public string Title { get; set; } = "";       
+        public string Content { get; set; } = "";     
+        public string Slug { get; set; } = "";      
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }
