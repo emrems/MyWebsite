@@ -6,6 +6,7 @@
         IProjectService ProjectService { get; }
         ICategoryService CategoryService { get; }
         IArticleService ArticleService { get; }
+        IMessageService MessageService { get; }
 
 
     }

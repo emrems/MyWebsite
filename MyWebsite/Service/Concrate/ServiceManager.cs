@@ -10,6 +10,7 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<IProjectService> _projectService;
         private readonly Lazy<ICategoryService> _categoryService;
         private readonly Lazy<IArticleService> _articleService;
+        private readonly Lazy<IMessageService> _messageService;
 
         public ServiceManager(IRepositoryManager manager)
         {
@@ -17,6 +18,7 @@ namespace MyWebsite.Service.Concrate
             _projectService = new Lazy<IProjectService>(() => new ProjectManager(manager));
             _categoryService = new Lazy<ICategoryService>(() => new CategoryManager(manager));
             _articleService = new Lazy<IArticleService>(() => new ArticleManager(manager));
+            _messageService = new Lazy<IMessageService>(() => new MessageManager(manager));
         }
 
         public IUserService UserService => _userService.Value;
@@ -26,5 +28,7 @@ namespace MyWebsite.Service.Concrate
         public ICategoryService CategoryService => _categoryService.Value;
 
         public IArticleService ArticleService => _articleService.Value;
+
+        public IMessageService MessageService => _messageService.Value;
     }
 }

@@ -10,6 +10,7 @@ namespace MyWebsite.Repository.Concrate
         private readonly Lazy<IProjectRepository> _projectRepository;
         private readonly Lazy<ICategoryRepository> _categoryRepository;
         private readonly Lazy<IArticleRepository> _articleRepository;
+        private readonly Lazy<IMessageRepository> _messageRepository;
 
         public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository)
         {
@@ -18,6 +19,7 @@ namespace MyWebsite.Repository.Concrate
             _projectRepository = new Lazy<IProjectRepository>(() => new ProjectRepository(dbContext));
             _categoryRepository = new Lazy<ICategoryRepository>(() => new CategoryRepository(dbContext));
             _articleRepository = new Lazy<IArticleRepository>(() => new ArticleRepository(dbContext));
+            _messageRepository = new Lazy<IMessageRepository>(() => new MessageRepository(dbContext));
         }
 
         public IUserRepository UserRepository => _userRepository.Value;
@@ -27,6 +29,8 @@ namespace MyWebsite.Repository.Concrate
         public ICategoryRepository CategoryRepository => _categoryRepository.Value;
 
         public IArticleRepository ArticleRepository => _articleRepository.Value;
+
+        public IMessageRepository MessageRepository => _messageRepository.Value;
 
         public async Task SaveAsync()
         {

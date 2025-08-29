@@ -6,6 +6,7 @@
         IProjectRepository ProjectRepository { get; }
         ICategoryRepository CategoryRepository { get; }
         IArticleRepository ArticleRepository { get; }
+        IMessageRepository MessageRepository { get; }
         Task SaveAsync();
     }
 }
