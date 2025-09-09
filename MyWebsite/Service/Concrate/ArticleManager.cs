@@ -76,6 +76,25 @@ namespace MyWebsite.Service.Concrate
             return articleDto;
         }
 
+        public async Task<ReadArticleDtos> GetArticleBySlugAsync(string slug)
+        {
+            var article = await _repository.ArticleRepository.GetArticleBySlugAsync(slug);
+            if (article == null)
+            {
+                throw new NotFoundException("Article bulunamdı");
+            }
+            var articleDto = new ReadArticleDtos
+            {
+                Id = article.Id,
+                Title = article.Title,
+                Content = article.Content,
+                Slug = article.Slug,
+                CreatedDate = article.CreatedDate
+            };
+            return articleDto;
+
+        }
+
         public async Task UpdateArticleAsync(UpdateArticleDtos articleDto)
         {
            var article = await _repository.ArticleRepository.GetByIdAsync(articleDto.Id);

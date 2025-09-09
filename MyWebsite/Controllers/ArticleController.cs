@@ -49,5 +49,12 @@ namespace MyWebsite.Controllers
            await _manager.ArticleService.DeleteArticleAsync(id);
             return NoContent();
         }
+
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetArticleBySlug(string slug)
+        {
+            var article = await _manager.ArticleService.GetArticleBySlugAsync(slug);
+            return Ok(article);
+        }
     }
 }

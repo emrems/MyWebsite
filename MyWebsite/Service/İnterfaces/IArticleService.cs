@@ -9,5 +9,6 @@ namespace MyWebsite.Service.İnterfaces
         Task CreateArticleAsync(CreateArticleDtos article);
         Task UpdateArticleAsync(UpdateArticleDtos article);
         Task DeleteArticleAsync(int id);
+        Task<ReadArticleDtos> GetArticleBySlugAsync(string slug);
     }
 }

@@ -10,6 +10,18 @@ using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+// CORS servisini ekle
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            // Frontend adresinizi buraya ekleyin
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllers();
 
@@ -72,6 +84,8 @@ app.MapScalarApiReference(
 app.UseMiddleware<MyWebsite.Middleware.ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
+// CORS middleware'ini kullan
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
