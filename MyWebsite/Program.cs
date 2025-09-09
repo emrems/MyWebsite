@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Repository.Concrate;
 using MyWebsite.Repository.config;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.Concrate;
 using MyWebsite.Service.İnterfaces;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,22 @@ builder.Services.AddControllers();
 // OpenAPI metadata (endpointler Scalar’ın göreceği JSON’u buradan alacak)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
 
 // DbContext
 builder.Services.AddDbContext<MyWebSiteData>(options =>
@@ -31,6 +50,7 @@ builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IArticleService, ArticleManager>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageManager>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

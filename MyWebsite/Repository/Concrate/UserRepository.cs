@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyWebsite.Dtos.AuthDtos;
 using MyWebsite.Entities;
 using MyWebsite.Repository.config;
 using MyWebsite.Repository.Interfaces;
@@ -24,6 +25,14 @@ namespace MyWebsite.Repository.Concrate
         public async Task<IEnumerable<User>> GetAllUsers()
         {
             return await FindAll().ToListAsync();
+        }
+
+        public async Task<User?> GetLoginResult(LoginDto loginDto)
+        {
+            var user = await _DbContext.Users
+                .FirstOrDefaultAsync(u => u.Username == loginDto.Username && u.PasswordHash == loginDto.Password);
+
+            return user;
         }
 
         public Task<User> GetUserById(int id)

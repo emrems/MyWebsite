@@ -7,6 +7,7 @@
         ICategoryService CategoryService { get; }
         IArticleService ArticleService { get; }
         IMessageService MessageService { get; }
+        IAuthService AuthService { get; }
 
 
     }

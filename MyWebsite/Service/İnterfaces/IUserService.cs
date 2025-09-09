@@ -1,4 +1,5 @@
-﻿using MyWebsite.Dtos.UserDtos;
+﻿using MyWebsite.Dtos.AuthDtos;
+using MyWebsite.Dtos.UserDtos;
 using MyWebsite.Entities;
 
 namespace MyWebsite.Service.İnterfaces

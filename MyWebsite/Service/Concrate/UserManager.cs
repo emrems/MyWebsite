@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyWebsite.Dtos.AuthDtos;
 using MyWebsite.Dtos.UserDtos;
 using MyWebsite.Entities;
 using MyWebsite.Exceptions;
@@ -10,10 +11,12 @@ namespace MyWebsite.Service.Concrate
     public class UserManager : IUserService
     {
         private readonly IRepositoryManager _manager;
+        private readonly IConfiguration _configuration;
 
-        public UserManager(IRepositoryManager manager)
+        public UserManager(IRepositoryManager manager, IConfiguration configuration)
         {
             _manager = manager;
+            _configuration = configuration;
         }
 
         public async Task CreateUser(CreateUserDto user)
@@ -47,6 +50,8 @@ namespace MyWebsite.Service.Concrate
         {
             return await _manager.UserRepository.GetAllUsers();
         }
+
+        
 
         public async Task<User> GetUserById(int id)
         {

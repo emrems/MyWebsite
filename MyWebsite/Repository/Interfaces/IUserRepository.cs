@@ -1,4 +1,5 @@
-﻿using MyWebsite.Entities;
+﻿using MyWebsite.Dtos.AuthDtos;
+using MyWebsite.Entities;
 
 namespace MyWebsite.Repository.Interfaces
 {
@@ -10,5 +11,6 @@ namespace MyWebsite.Repository.Interfaces
         Task<User> GetUserById(int id);
         Task UpdateUser(User user);
         Task DeleteUser(User user);
+        Task<User> GetLoginResult(LoginDto loginDto);
     }
 }
