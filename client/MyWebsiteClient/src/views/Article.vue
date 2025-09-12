@@ -5,19 +5,19 @@
       <p class="page-subtitle">Teknoloji, tasarım ve yazılım dünyasından en güncel içerikler</p>
     </div>
     
-    <div v-if="loading" class="status-message loading-spinner">
+    <div v-if="isLoading" class="status-message loading-spinner">
       <div class="spinner"></div>
       <p>Yazılar yükleniyor...</p>
     </div>
     
-    <div v-if="error" class="status-message error-message">
+    <div v-else-if="getError" class="status-message error-message">
       <i class="icon-error"></i>
-      <p>{{ error }}</p>
+      <p>{{ getError }}</p>
       <button @click="fetchArticles" class="retry-button">Tekrar Dene</button>
     </div>
     
-    <div v-else-if="articles.length > 0" class="articles-grid">
-      <div v-for="article in articles" :key="article.id" class="article-card">
+    <div v-else-if="allArticles && allArticles.length > 0" class="articles-grid">
+      <div v-for="article in allArticles" :key="article.id" class="article-card">
         <div class="article-image" :style="{ backgroundImage: 'url(https://picsum.photos/400/200?random=' + article.id + ')' }">
           <div class="article-category">Teknoloji</div>
         </div>
@@ -50,31 +50,15 @@
 </template>
 
 <script>
-import ApiService from '@/services/ApiService';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  data() {
-    return {
-      articles: [],
-      loading: true,
-      error: null
-    };
-  },
-  created() {
-    this.fetchArticles();
+  computed: {
+    ...mapGetters('articles', ['allArticles', 'isLoading', 'getError'])
   },
   methods: {
-    async fetchArticles() {
-      try {
-        const response = await ApiService.get('article/all');
-        this.articles = response.data;
-      } catch (exception) {
-        console.error('API isteği başarısız oldu:', exception);
-        this.error = 'Makaleler yüklenirken bir hata oluştu.';
-      } finally {
-        this.loading = false;
-      }
-    },
+    ...mapActions('articles', ['fetchArticles']),
+    
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('tr-TR', {
@@ -91,6 +75,9 @@ export default {
       const wordCount = content.split(' ').length;
       return Math.ceil(wordCount / wordsPerMinute);
     }
+  },
+  created() {
+    this.fetchArticles();
   }
 };
 </script>
@@ -98,8 +85,9 @@ export default {
 <style scoped>
 .articles-container {
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  /* Üstten 80px boşluk ekledik. Bu değeri navigasyon barınızın yüksekliğine göre ayarlayabilirsiniz. */
+  padding: 80px 1rem 0; /* Üst, sağ/sol, alt */
+  margin: 0 auto;
 }
 
 .page-header {
