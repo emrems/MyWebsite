@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.ArticleDtos;
+using MyWebsite.Exceptions;
 using MyWebsite.Service.İnterfaces;
 
 namespace MyWebsite.Controllers
@@ -14,9 +16,11 @@ namespace MyWebsite.Controllers
         {
             _manager = manager;
         }
+       // [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArticleById(int id)
         {
+
             var article = await _manager.ArticleService.GetArticleByIdAsync(id);
 
             return Ok(article);
@@ -29,6 +33,7 @@ namespace MyWebsite.Controllers
             return Ok(articles);
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleDtos articleDto)
         {
@@ -56,5 +61,6 @@ namespace MyWebsite.Controllers
             var article = await _manager.ArticleService.GetArticleBySlugAsync(slug);
             return Ok(article);
         }
+       
     }
 }

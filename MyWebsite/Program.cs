@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MyWebsite.Dtos.CategoryDtos;
+using MyWebsite.Exceptions;
+using MyWebsite.Middleware;
 using MyWebsite.Repository.Concrate;
 using MyWebsite.Repository.config;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.Concrate;
 using MyWebsite.Service.İnterfaces;
+using MyWebsite.Validator.Categories;
 using Scalar.AspNetCore;
 using System.Text;
 
@@ -44,6 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddProblemDetails();
 
 // DbContext
 builder.Services.AddDbContext<MyWebSiteData>(options =>
@@ -64,7 +71,23 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageManager>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// validators
+//builder.Services.AddScoped<IValidator<CreateCategoryValidator>>();
+builder.Services.AddScoped<IValidator<CreateCategoryDtos>, CreateCategoryValidator>();
+
 var app = builder.Build();
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionHandlerFeature?.Error != null)
+        {
+            await CustomExceptionHandler.HandleException(context, exceptionHandlerFeature.Error);
+        }
+    });
+});
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -81,11 +104,11 @@ app.MapScalarApiReference(
        opt.Theme = ScalarTheme.BluePlanet;
    }
 );
-app.UseMiddleware<MyWebsite.Middleware.ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 // CORS middleware'ini kullan
 app.UseCors("AllowSpecificOrigin");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

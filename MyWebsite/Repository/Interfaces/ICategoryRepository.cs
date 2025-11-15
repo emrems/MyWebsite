@@ -6,6 +6,7 @@ namespace MyWebsite.Repository.Interfaces
 
     {
         IQueryable<Category> FindAllWithRelations();
+        Task<Category> FindCategoryByIdAsync(int id);
 
 
     }

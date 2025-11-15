@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.CategoryDtos;
+using MyWebsite.Dtos.Error;
 using MyWebsite.Service.İnterfaces;
 
 namespace MyWebsite.Controllers
@@ -17,7 +18,11 @@ namespace MyWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDtos categoryDto)
         {
-            await _serviceManager.CategoryService.AddCategory(categoryDto);
+            var result =await _serviceManager.CategoryService.AddCategory(categoryDto);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Message);
+            }
             return Ok("category başarılı bir şekilde eklendi");
 
         }
@@ -26,6 +31,20 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _serviceManager.CategoryService.GetAllCategories();
+            return Ok(categories);
+        }
+
+        [HttpGet("getCategoriesById")]
+        public async Task<IActionResult> GetCategoriesById(int id)
+        {
+            var categories = await _serviceManager.CategoryService.GetCategoryById(id);
+            if (!categories.IsSuccess)
+            {
+                if(categories.ErrroCode == ErrorCodes.NotFound)
+                {
+                    return NotFound();
+                }
+            }
             return Ok(categories);
         }
 

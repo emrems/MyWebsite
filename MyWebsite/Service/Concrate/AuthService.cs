@@ -1,5 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Dtos.AuthDtos;
+using MyWebsite.Dtos.Error;
+using MyWebsite.Dtos.Response;
 using MyWebsite.Entities;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
@@ -20,20 +22,29 @@ namespace MyWebsite.Service.Concrate
             _configuration = configuration;
         }
 
-        public async Task<LoginResultDto> LoginAsync(LoginDto loginDto)
+        public async Task<BaseResponse<LoginResultDto>> LoginAsync(LoginDto loginDto)
         {
             var user = await _repositoryManager.UserRepository.GetLoginResult(loginDto);
 
             if (user == null)
             {
-                return new LoginResultDto
+                return new BaseResponse<LoginResultDto>
                 {
-                    Success = false,
-                    Message = "Kullanıcı adı veya şifre hatalı."
+                    IsSuccess = false,
+                    Message = "Geçersiz kullanıcı adı veya şifre",
+                    Data = null,
+                    ErrroCode = ErrorCodes.BadRequest
                 };
             }
 
-            return GenerateJwtToken(user);
+            var token= GenerateJwtToken(user);
+            return new BaseResponse<LoginResultDto>
+            {
+                IsSuccess = true,
+                Message = "Giriş başarılı",
+                Data = token,
+                ErrroCode = null
+            };
         }
 
         private LoginResultDto GenerateJwtToken(User user)

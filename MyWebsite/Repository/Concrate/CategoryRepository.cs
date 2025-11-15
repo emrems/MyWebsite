@@ -19,5 +19,13 @@ namespace MyWebsite.Repository.Concrate
                            .AsQueryable();
         }
 
+        public async Task<Category> FindCategoryByIdAsync(int id)
+        {
+            var categories = await _DbContext.Categories
+                                                 .Include(c => c.Articles)
+                                                 .Include(c => c.Projects)
+                                                 .FirstOrDefaultAsync(c => c.Id == id);
+            return categories;
+        }
     }
 }

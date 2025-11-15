@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.AuthDtos;
 using MyWebsite.Service.İnterfaces;
 
@@ -15,11 +16,12 @@ namespace MyWebsite.Controllers
             _serviceManager = serviceManager;
         }
 
+       
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var result = await _serviceManager.AuthService.LoginAsync(dto);
-            if (result.Success)
+            if (result.IsSuccess)
             {
                 return Ok(result);
             }
