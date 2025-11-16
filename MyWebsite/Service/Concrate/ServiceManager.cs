@@ -1,17 +1,10 @@
-﻿using FluentValidation;
-using MyWebsite.Dtos.CategoryDtos;
-using MyWebsite.Dtos.MessageDtos;
-using MyWebsite.Dtos.ProjectDtos;
-using MyWebsite.Dtos.UserDtos;
-using MyWebsite.Repository.Interfaces;
+﻿using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
 
 namespace MyWebsite.Service.Concrate
 {
     public class ServiceManager : IServiceManager
-
     {
-       
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IProjectService> _projectService;
         private readonly Lazy<ICategoryService> _categoryService;
@@ -19,27 +12,36 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<IMessageService> _messageService;
         private readonly Lazy<IAuthService> _authService;
 
+        private readonly IServiceProvider _serviceProvider;
 
-        public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IValidator<CreateCategoryDtos> categoryDto, IValidator<MessageDtos> messageDto, IValidator<CreateProjectDtos> projectDto, IValidator<UpdateUserDto> updateUserDto, IValidator<CreateUserDto> createUserDto)
+        public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IServiceProvider serviceProvider)
         {
-            _userService = new Lazy<IUserService>(() => new UserManager(manager, configuration,updateUserDto,createUserDto));
-            _projectService = new Lazy<IProjectService>(() => new ProjectManager(manager, projectDto));
-            _categoryService = new Lazy<ICategoryService>(() => new CategoryManager(manager, categoryDto));
-            _articleService = new Lazy<IArticleService>(() => new ArticleManager(manager));
-            _messageService = new Lazy<IMessageService>(() => new MessageManager(manager, messageDto));
-            _authService = new Lazy<IAuthService>(() => new AuthService(manager, configuration));
+            _serviceProvider = serviceProvider;
+
+            _userService = new Lazy<IUserService>(() =>
+                ActivatorUtilities.CreateInstance<UserManager>(_serviceProvider, manager, configuration));
+
+            _projectService = new Lazy<IProjectService>(() =>
+                ActivatorUtilities.CreateInstance<ProjectManager>(_serviceProvider, manager));
+
+            _categoryService = new Lazy<ICategoryService>(() =>
+                ActivatorUtilities.CreateInstance<CategoryManager>(_serviceProvider, manager));
+
+            _articleService = new Lazy<IArticleService>(() =>
+                ActivatorUtilities.CreateInstance<ArticleManager>(_serviceProvider, manager));
+
+            _messageService = new Lazy<IMessageService>(() =>
+                ActivatorUtilities.CreateInstance<MessageManager>(_serviceProvider, manager));
+
+            _authService = new Lazy<IAuthService>(() =>
+                ActivatorUtilities.CreateInstance<AuthService>(_serviceProvider, manager, configuration));
         }
 
         public IUserService UserService => _userService.Value;
-
         public IProjectService ProjectService => _projectService.Value;
-
         public ICategoryService CategoryService => _categoryService.Value;
-
         public IArticleService ArticleService => _articleService.Value;
-
         public IMessageService MessageService => _messageService.Value;
-
         public IAuthService AuthService => _authService.Value;
     }
 }
