@@ -21,9 +21,9 @@ namespace MyWebsite.Controllers
             var result =await _serviceManager.CategoryService.AddCategory(categoryDto);
             if (!result.IsSuccess)
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
-            return Ok("category başarılı bir şekilde eklendi");
+            return Ok(result);
 
         }
 

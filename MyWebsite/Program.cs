@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Dtos.CategoryDtos;
+using MyWebsite.Dtos.MessageDtos;
 using MyWebsite.Exceptions;
 using MyWebsite.Middleware;
 using MyWebsite.Repository.Concrate;
@@ -12,6 +13,7 @@ using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.Concrate;
 using MyWebsite.Service.İnterfaces;
 using MyWebsite.Validator.Categories;
+using MyWebsite.Validator.Message;
 using Scalar.AspNetCore;
 using System.Text;
 
@@ -74,6 +76,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // validators
 //builder.Services.AddScoped<IValidator<CreateCategoryValidator>>();
 builder.Services.AddScoped<IValidator<CreateCategoryDtos>, CreateCategoryValidator>();
+builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
+
+//builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 
 var app = builder.Build();
 app.UseExceptionHandler(errorApp =>

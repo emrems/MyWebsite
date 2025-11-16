@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.MessageDtos;
 using MyWebsite.Service.İnterfaces;
 
@@ -16,8 +17,16 @@ namespace MyWebsite.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromBody] MessageDtos message)
         {
-            await _serviceManager.MessageService.CreateMessageAsync(message);
-            return Ok("Mesaj başarılı bir şekilde gönderildi");
+            var result =await _serviceManager.MessageService.CreateMessageAsync(message);
+            if (!result.IsSuccess)
+            {
+                if (result.ErrroCode == ErrorCodes.NotFound)
+                {
+                    return NotFound(result);
+                }
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         [HttpGet("getall")]
