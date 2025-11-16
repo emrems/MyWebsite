@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.ProjectDtos;
 using MyWebsite.Service.İnterfaces;
 
@@ -32,15 +33,23 @@ namespace MyWebsite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDtos project)
         {
-            await _manager.ProjectService.CreateProjectAsync(project);
-            return StatusCode(201, "Proje başarıyla eklendi.");
+            var result =await _manager.ProjectService.CreateProjectAsync(project);
+            if (!result.IsSuccess)
+            {
+                if(result.ErrroCode == ErrorCodes.NotFound)
+                {
+                    return NotFound(result);
+                }
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject([FromBody] int id)
+        public async Task<IActionResult> UpdateProject([FromRoute] int id, [FromBody] UpdateProjectDtos dto)
         {
-            await _manager.ProjectService.UpdateProjectAsync(id);
-            return Ok("Proje başarıyla güncellendi.");
+            var result =await _manager.ProjectService.UpdateProjectAsync(id,dto);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]

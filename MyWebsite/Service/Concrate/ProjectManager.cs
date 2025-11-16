@@ -1,23 +1,40 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.ProjectDtos;
+using MyWebsite.Dtos.Response;
 using MyWebsite.Entities;
 using MyWebsite.Exceptions;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
+using MyWebsite.Validator.Project;
 
 namespace MyWebsite.Service.Concrate
 {
     public class ProjectManager : IProjectService
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly IValidator<CreateProjectDtos> _createProjectValidator;
 
-        public ProjectManager(IRepositoryManager repositoryManager)
+        public ProjectManager(IRepositoryManager repositoryManager, IValidator<CreateProjectDtos> createProjectValidator)
         {
             _repositoryManager = repositoryManager;
+            _createProjectValidator = createProjectValidator;
         }
 
-        public async Task<CreateProjectDtos> CreateProjectAsync(CreateProjectDtos createProjectDtos)
+        public async Task<BaseResponse<object>> CreateProjectAsync(CreateProjectDtos createProjectDtos)
         {
+            var resultValidator = await _createProjectValidator.ValidateAsync(createProjectDtos);
+            if (!resultValidator.IsValid)
+            {
+                return new BaseResponse<object>
+                {
+                    IsSuccess = false,
+                    Data = null,
+                    ErrroCode = ErrorCodes.ValidationError,
+                    Message = resultValidator.Errors.Select(error => error.ErrorMessage).FirstOrDefault()
+                };
+            }
             var project = new Project()
             {
                 Title = createProjectDtos.Title,
@@ -30,19 +47,16 @@ namespace MyWebsite.Service.Concrate
             };
             await _repositoryManager.ProjectRepository.AddAsync(project);
             await _repositoryManager.SaveAsync();
-            return new CreateProjectDtos
+            return new BaseResponse<object>
             {
-                Title = createProjectDtos.Title,
-                Description = createProjectDtos.Description,
-                Technologies = createProjectDtos.Technologies,
-                GithubUrl = createProjectDtos.GithubUrl,
-                LiveDemoUrl = createProjectDtos.LiveDemoUrl,
-                CategoryId = createProjectDtos.CategoryId
-
+                IsSuccess = true,
+                Data = null,
+                Message = "proje başarılı bir şekilde eklendi",
+                ErrroCode = null
             };
         }
 
-        public async Task DeleteProjectAsync(int id)
+        public async Task<BaseResponse<object>> DeleteProjectAsync(int id)
         {
             var project = await _repositoryManager.ProjectRepository.GetByIdAsync(id);
             if (project == null)
@@ -51,9 +65,16 @@ namespace MyWebsite.Service.Concrate
             }
             await _repositoryManager.ProjectRepository.DeleteAsync(project);
             await _repositoryManager.SaveAsync();
+            return new BaseResponse<object>
+            {
+                IsSuccess = true,
+                Data = project,
+                ErrroCode = null,
+                Message = "proje başarılı bir şekilde silindi"
+            };
         }
 
-        public async Task<IQueryable<ReadProjectDtos>> GetAllProjectsAsync()
+        public async Task<BaseResponse<IQueryable<ReadProjectDtos>>> GetAllProjectsAsync()
         {
             var projects = await _repositoryManager.ProjectRepository.FindAllProject().ToListAsync();
 
@@ -67,11 +88,17 @@ namespace MyWebsite.Service.Concrate
                 LiveDemoUrl = p.LiveDemoUrl,
                 CategoryName = p.Category != null ? p.Category.Name : null
             }).AsQueryable();
-            return projectDtos;
+            return new BaseResponse<IQueryable<ReadProjectDtos>>
+            {
+                IsSuccess = true,
+                Data = projectDtos,
+                Message = "projeler başarıyla çekildi",
+                ErrroCode = null
+            };
 
         }
 
-        public async Task<ReadProjectDtos?> GetProjectByIdAsync(int id)
+        public async Task<BaseResponse<ReadProjectDtos?>> GetProjectByIdAsync(int id)
         {
             var project = await _repositoryManager.ProjectRepository.GetByIdAsyncProject(id);
             if (project is null)
@@ -88,18 +115,37 @@ namespace MyWebsite.Service.Concrate
                 LiveDemoUrl = project.LiveDemoUrl,
                 CategoryName = project.Category != null ? project.Category.Name : null
             };
-            return projectDto;
+            return new BaseResponse<ReadProjectDtos?>
+            {
+                IsSuccess = true,
+                Data = projectDto,
+                Message = "proje başarılı bir şekilde çekildi",
+                ErrroCode = null
+            };
         }
 
-        public async Task UpdateProjectAsync(int id)
+        public async Task<BaseResponse<object>> UpdateProjectAsync(int id, UpdateProjectDtos dto)
         {
             var project =await  _repositoryManager.ProjectRepository.GetByIdAsync(id);
             if (project == null)
             {
                 throw new NotFoundException($"{id} li proje bulunamadı");
             }
+            project.Title = dto.Title;
+            project.LiveDemoUrl = dto.LiveDemoUrl;
+            project.GithubUrl = dto.GithubUrl;
+            project.Technologies = dto.Technologies;
+            project.Description = dto.Description;
+            
             await _repositoryManager.ProjectRepository.UpdateAsync(project);
             await _repositoryManager.SaveAsync();
+            return new BaseResponse<object>
+            {
+                IsSuccess = true,
+                Data = project,
+                ErrroCode = null,
+                Message = "proje başarılı bir şekilde güncellendi"
+            };
         }
     }
 }

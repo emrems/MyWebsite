@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MyWebsite.Dtos.CategoryDtos;
 using MyWebsite.Dtos.MessageDtos;
+using MyWebsite.Dtos.ProjectDtos;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
 
@@ -18,10 +19,10 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<IAuthService> _authService;
 
 
-        public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IValidator<CreateCategoryDtos> categoryDto, IValidator<MessageDtos> messageDto)
+        public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IValidator<CreateCategoryDtos> categoryDto, IValidator<MessageDtos> messageDto, IValidator<CreateProjectDtos> projectDto)
         {
             _userService = new Lazy<IUserService>(() => new UserManager(manager, configuration));
-            _projectService = new Lazy<IProjectService>(() => new ProjectManager(manager));
+            _projectService = new Lazy<IProjectService>(() => new ProjectManager(manager, projectDto));
             _categoryService = new Lazy<ICategoryService>(() => new CategoryManager(manager, categoryDto));
             _articleService = new Lazy<IArticleService>(() => new ArticleManager(manager));
             _messageService = new Lazy<IMessageService>(() => new MessageManager(manager, messageDto));
