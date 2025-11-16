@@ -11,5 +11,6 @@
 
         // Navigation
         public ICollection<Article>? Articles { get; set; }
+        public ICollection<Comment> Comments { get; set; }
     }
 }

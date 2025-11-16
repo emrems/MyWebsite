@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWebsite.Repository.config;
 
@@ -11,9 +12,11 @@ using MyWebsite.Repository.config;
 namespace MyWebsite.Migrations
 {
     [DbContext(typeof(MyWebSiteData))]
-    partial class MyWebSiteDataModelSnapshot : ModelSnapshot
+    [Migration("20251116122807_AddCommentTable")]
+    partial class AddCommentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

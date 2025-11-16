@@ -17,6 +17,7 @@ namespace MyWebsite.Repository.config
         public DbSet<Project> Projects { get; set; }
         public DbSet<Log> Logs { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
     }
 }
