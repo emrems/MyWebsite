@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.UserDtos;
 using MyWebsite.Entities;
 using MyWebsite.Service.İnterfaces;
@@ -28,7 +29,15 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
         {
           
-            await _manager.UserService.CreateUser(user);
+            var result =await _manager.UserService.CreateUser(user);
+            if (!result.IsSuccess)
+            {
+                if (result.ErrroCode == ErrorCodes.NotFound)
+                {
+                    return NotFound(result);
+                }
+                return BadRequest(result);
+            }
             return StatusCode(201, "kullanıcı başarıyla eklendi.");
         }
 

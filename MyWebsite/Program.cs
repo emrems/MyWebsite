@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Dtos.CategoryDtos;
 using MyWebsite.Dtos.MessageDtos;
 using MyWebsite.Dtos.ProjectDtos;
+using MyWebsite.Dtos.UserDtos;
 using MyWebsite.Exceptions;
 using MyWebsite.Middleware;
 using MyWebsite.Repository.Concrate;
@@ -16,6 +17,7 @@ using MyWebsite.Service.İnterfaces;
 using MyWebsite.Validator.Categories;
 using MyWebsite.Validator.Message;
 using MyWebsite.Validator.Project;
+using MyWebsite.Validator.User;
 using Scalar.AspNetCore;
 using System.Text;
 
@@ -80,6 +82,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidator<CreateCategoryDtos>, CreateCategoryValidator>();
 builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 builder.Services.AddScoped<IValidator<CreateProjectDtos>, CreateProjectDtoValidator>();
+
+builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserValidator>();
+
+builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserValidator>();
 
 //builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 
