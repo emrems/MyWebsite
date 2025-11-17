@@ -11,7 +11,7 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<IArticleService> _articleService;
         private readonly Lazy<IMessageService> _messageService;
         private readonly Lazy<IAuthService> _authService;
-
+        private readonly Lazy<ICommentService> _commentService;
         private readonly IServiceProvider _serviceProvider;
 
         public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -35,6 +35,8 @@ namespace MyWebsite.Service.Concrate
 
             _authService = new Lazy<IAuthService>(() =>
                 ActivatorUtilities.CreateInstance<AuthService>(_serviceProvider, manager, configuration));
+            _commentService = new Lazy<ICommentService>(() =>
+                ActivatorUtilities.CreateInstance<CommentManager>(_serviceProvider, manager));
         }
 
         public IUserService UserService => _userService.Value;
@@ -43,5 +45,7 @@ namespace MyWebsite.Service.Concrate
         public IArticleService ArticleService => _articleService.Value;
         public IMessageService MessageService => _messageService.Value;
         public IAuthService AuthService => _authService.Value;
+
+        public ICommentService CommentService => _commentService.Value;
     }
 }

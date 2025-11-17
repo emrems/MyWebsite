@@ -8,6 +8,7 @@
         IArticleService ArticleService { get; }
         IMessageService MessageService { get; }
         IAuthService AuthService { get; }
+        ICommentService CommentService { get; }
 
 
     }

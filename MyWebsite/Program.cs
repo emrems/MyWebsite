@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Dtos.CategoryDtos;
+using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.MessageDtos;
 using MyWebsite.Dtos.ProjectDtos;
 using MyWebsite.Dtos.UserDtos;
@@ -15,6 +16,7 @@ using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.Concrate;
 using MyWebsite.Service.İnterfaces;
 using MyWebsite.Validator.Categories;
+using MyWebsite.Validator.Comment;
 using MyWebsite.Validator.Message;
 using MyWebsite.Validator.Project;
 using MyWebsite.Validator.User;
@@ -76,6 +78,8 @@ builder.Services.AddScoped<IArticleService, ArticleManager>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageService, MessageManager>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICommentService, CommentManager>();
 
 // validators
 //builder.Services.AddScoped<IValidator<CreateCategoryValidator>>();
@@ -86,6 +90,7 @@ builder.Services.AddScoped<IValidator<CreateProjectDtos>, CreateProjectDtoValida
 builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserValidator>();
 
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserValidator>();
+builder.Services.AddScoped<IValidator<createCommentDto>, CreateCommentValidator>();
 
 //builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 

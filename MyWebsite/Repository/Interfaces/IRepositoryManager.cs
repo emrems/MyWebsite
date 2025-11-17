@@ -7,6 +7,7 @@
         ICategoryRepository CategoryRepository { get; }
         IArticleRepository ArticleRepository { get; }
         IMessageRepository MessageRepository { get; }
+        ICommentRepository CommentRepository { get; }
         Task SaveAsync();
     }
 }
