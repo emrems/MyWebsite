@@ -7,7 +7,7 @@ namespace MyWebsite.Controllers
 {
     [ApiController]
     [Route("api/categories")]
-    public class CategoryController : ControllerBase
+    public class CategoryController : BaseController
     {
         private readonly IServiceManager _serviceManager;
         public CategoryController(IServiceManager serviceManager)
@@ -19,11 +19,7 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDtos categoryDto)
         {
             var result =await _serviceManager.CategoryService.AddCategory(categoryDto);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
+            return CreateResponse(result);
 
         }
 
@@ -31,35 +27,28 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _serviceManager.CategoryService.GetAllCategories();
-            return Ok(categories);
+            return CreateResponse(categories);
         }
 
         [HttpGet("getCategoriesById")]
         public async Task<IActionResult> GetCategoriesById(int id)
         {
             var categories = await _serviceManager.CategoryService.GetCategoryById(id);
-            if (!categories.IsSuccess)
-            {
-                if(categories.ErrroCode == ErrorCodes.NotFound)
-                {
-                    return NotFound();
-                }
-            }
-            return Ok(categories);
+            return CreateResponse(categories);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            await _serviceManager.CategoryService.DeleteCategory(id);
-            return Ok("category başarılı bir şekilde silindi");
+             var result =await _serviceManager.CategoryService.DeleteCategory(id);
+            return CreateResponse(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDtos categoryDto)
         {
-            await _serviceManager.CategoryService.UpdateCategory(categoryDto);
-            return Ok("category başarılı bir şekilde güncellendi");
+            var result =await _serviceManager.CategoryService.UpdateCategory(categoryDto);
+            return CreateResponse(result);
         }
     }
 }

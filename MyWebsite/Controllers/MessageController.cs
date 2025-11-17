@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.MessageDtos;
+using MyWebsite.Entities;
 using MyWebsite.Service.İnterfaces;
 
 namespace MyWebsite.Controllers
 {
     [ApiController]
     [Route("api/message")]
-    public class MessageController : ControllerBase
+    public class MessageController : BaseController
     {
         private readonly IServiceManager _serviceManager;
         public MessageController(IServiceManager serviceManager)
@@ -18,41 +19,33 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> SendMessage([FromBody] MessageDtos message)
         {
             var result =await _serviceManager.MessageService.CreateMessageAsync(message);
-            if (!result.IsSuccess)
-            {
-                if (result.ErrroCode == ErrorCodes.NotFound)
-                {
-                    return NotFound(result);
-                }
-                return BadRequest(result);
-            }
-            return Ok(result);
+            return CreateResponse(result);
         }
 
         [HttpGet("getall")]
         public async Task<IActionResult> GetAllMessages()
         {
             var messages = await _serviceManager.MessageService.GetAllMessagesAsync();
-            return Ok(messages);
+            return CreateResponse(messages);
         }
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteMessage(int id)
         {
-            await _serviceManager.MessageService.DeleteMessageAsync(id);
-            return Ok("Mesaj başarılı bir şekilde silindi");
+            var result =await _serviceManager.MessageService.DeleteMessageAsync(id);
+            return CreateResponse(result);
         }
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetMessageById(int id)
         {
             var message = await _serviceManager.MessageService.GetMessageByIdAsync(id);
-            return Ok(message);
+            return CreateResponse(message);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateMessage(int id, [FromBody] MessageDtos message)
         {
-            await _serviceManager.MessageService.UpdateMessageAsync(id, message);
-            return Ok("Mesaj başarılı bir şekilde güncellendi");
+            var result =await _serviceManager.MessageService.UpdateMessageAsync(id, message);
+            return CreateResponse(result);
         }
     }
 }

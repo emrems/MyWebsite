@@ -7,7 +7,7 @@ namespace MyWebsite.Controllers
 {
     [ApiController]
     [Route("api/comment")]
-    public class CommentController : ControllerBase
+    public class CommentController : BaseController
     {
         private readonly IServiceManager _manager;
 
@@ -21,30 +21,14 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> getAllComments()
         {
             var result = await _manager.CommentService.gettAllComment();
-            if (!result.IsSuccess)
-            {
-                if(result.ErrroCode == ErrorCodes.NotFound)
-                {
-                    return NotFound(result);
-                }
-                return BadRequest(result);
-            }
-            return Ok(result);
+            return CreateResponse(result);
         }
 
         [HttpPost("CreateComment")]
         public async Task<IActionResult> CreateComment(createCommentDto dto)
         {
             var result = await _manager.CommentService.CreateComment(dto);
-            if (!result.IsSuccess)
-            {
-                if (result.ErrroCode == ErrorCodes.NotFound)
-                {
-                    return NotFound(result);
-                }
-                return BadRequest(result);
-            }
-            return Ok(result);
+            return CreateResponse(result);
         }
     }
 }

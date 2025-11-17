@@ -9,7 +9,7 @@ namespace MyWebsite.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private readonly IServiceManager _manager;
 
@@ -22,7 +22,7 @@ namespace MyWebsite.Controllers
         public  async Task<IActionResult> GetAllUsers()
         {
             var users = await _manager.UserService.GetAllUsers();
-            return Ok(users);
+            return CreateResponse(users);
         }
 
         [HttpPost]
@@ -30,37 +30,29 @@ namespace MyWebsite.Controllers
         {
           
             var result =await _manager.UserService.CreateUser(user);
-            if (!result.IsSuccess)
-            {
-                if (result.ErrroCode == ErrorCodes.NotFound)
-                {
-                    return NotFound(result);
-                }
-                return BadRequest(result);
-            }
-            return StatusCode(201, "kullanıcı başarıyla eklendi.");
+            return CreateResponse(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            await _manager.UserService.DeleteUser(id);
-            return Ok("kullanıcı başarıyla silindi.");
+            var result =await _manager.UserService.DeleteUser(id);
+            return CreateResponse(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _manager.UserService.GetUserById(id);
-            return Ok(user);
+            var result = await _manager.UserService.GetUserById(id);
+            return CreateResponse(result);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser( [FromBody] UpdateUserDto user)
         {
             
-            await _manager.UserService.UpdateUser(user);
-            return Ok("kullanıcı başarıyla güncellendi.");
+            var result =await _manager.UserService.UpdateUser(user);
+            return CreateResponse(result);
         }
     }
 }

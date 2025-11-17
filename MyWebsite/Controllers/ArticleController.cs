@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.ArticleDtos;
+using MyWebsite.Entities;
 using MyWebsite.Exceptions;
 using MyWebsite.Service.İnterfaces;
 
@@ -8,7 +9,7 @@ namespace MyWebsite.Controllers
 {
     [ApiController]
     [Route("api/article")]
-    public class ArticleController : ControllerBase
+    public class ArticleController : BaseController
     {
         private readonly IServiceManager _manager;
 
@@ -23,43 +24,43 @@ namespace MyWebsite.Controllers
 
             var article = await _manager.ArticleService.GetArticleByIdAsync(id);
 
-            return Ok(article);
+            return CreateResponse(article);
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllArticles()
         {
             var articles = await _manager.ArticleService.GetAllArticlesAsync();
-            return Ok(articles);
+            return CreateResponse(articles);
         }
 
         [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleDtos articleDto)
         {
-            await _manager.ArticleService.CreateArticleAsync(articleDto);
-           return Ok("Article başarılı bir şekilde oluştruldu");
+            var result =await _manager.ArticleService.CreateArticleAsync(articleDto);
+            return CreateResponse(result);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateArticle(int id, [FromBody] UpdateArticleDtos articleDto)
         {
-             await _manager.ArticleService.UpdateArticleAsync(articleDto);
-            return Ok("başarılı bir şekilde güncellendi");
+             var result =await _manager.ArticleService.UpdateArticleAsync(articleDto);
+            return CreateResponse(result);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteArticle(int id)
         {
-           await _manager.ArticleService.DeleteArticleAsync(id);
-            return NoContent();
+            var result= await _manager.ArticleService.DeleteArticleAsync(id);
+            return CreateResponse(result);
         }
 
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetArticleBySlug(string slug)
         {
-            var article = await _manager.ArticleService.GetArticleBySlugAsync(slug);
-            return Ok(article);
+            var result = await _manager.ArticleService.GetArticleBySlugAsync(slug);
+            return CreateResponse(result);
         }
        
     }

@@ -7,7 +7,7 @@ namespace MyWebsite.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController
     {
         private readonly IServiceManager _serviceManager;
 
@@ -21,11 +21,7 @@ namespace MyWebsite.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var result = await _serviceManager.AuthService.LoginAsync(dto);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return Unauthorized("yetkisiz giriş");
+            return CreateResponse(result);
 
         }
 
