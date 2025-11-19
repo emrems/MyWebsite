@@ -1,180 +1,230 @@
 <template>
-  <div class="project-card">
-    <!-- Başlık -->
-    <h2 class="project-title">{{ project.title }}</h2>
+  <div class="project-row" @click="goToLiveDemo">
+    <div class="row-content">
+      <div class="row-header">
+        <h3 class="project-title">{{ project.title }}</h3>
+        <span class="category-badge">{{ project.categoryName }}</span>
+      </div>
+      <p class="project-desc">{{ truncatedDescription }}</p>
+    </div>
 
-    <!-- Kategori -->
-    <div class="project-category">
-      <span class="badge">
-        <i class="fas fa-folder-open"></i> {{ project.categoryName }}
+    <div class="row-tech">
+      <span 
+        v-for="(tech, index) in techArray" 
+        :key="index" 
+        class="tech-tag"
+      >
+        #{{ tech }}
       </span>
     </div>
 
-    <!-- Açıklama -->
-    <p class="project-description">{{ project.description }}</p>
-
-    <!-- Teknolojiler -->
-    <div class="project-technologies">
-      <strong>Teknolojiler:</strong>
-      <div class="tech-list">
-        <span
-          v-for="(tech, index) in project.technologies.split(',')"
-          :key="index"
-          class="tech-badge"
-        >
-          <i class="fas fa-code"></i> {{ tech.trim() }}
-        </span>
+    <div class="row-actions">
+      <a 
+        v-if="project.githubUrl" 
+        :href="project.githubUrl" 
+        target="_blank" 
+        class="action-icon github"
+        @click.stop
+        title="GitHub Kodları"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+      
+      <div class="arrow-circle">
+        <i class="fas fa-arrow-right"></i>
       </div>
-    </div>
-
-    <!-- Linkler -->
-    <div class="project-links">
-      <a
-        :href="project.githubUrl"
-        target="_blank"
-        class="link-button github-link"
-      >
-        <i class="fab fa-github"></i> GitHub
-      </a>
-      <a
-        :href="project.liveDemoUrl"
-        target="_blank"
-        class="link-button demo-link"
-      >
-        <i class="fas fa-arrow-up-right-from-square"></i> Canlı Demo
-      </a>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ProjectCard",
+  name: "ProjectRow",
   props: {
     project: {
       type: Object,
       required: true,
     },
   },
+  computed: {
+    // Teknolojileri virgülle ayrılmış string'den diziye çevirir
+    techArray() {
+      if (!this.project.technologies) return [];
+      // En fazla 3 tanesini gösterip kalabalığı önleyelim
+      return this.project.technologies.split(',').map(t => t.trim()).slice(0, 3);
+    },
+    // Açıklamayı belli bir karakterden sonra keser
+    truncatedDescription() {
+      const desc = this.project.description;
+      if (desc && desc.length > 90) {
+        return desc.substring(0, 90) + '...';
+      }
+      return desc;
+    }
+  },
+  methods: {
+    goToLiveDemo() {
+      if (this.project.liveDemoUrl) {
+        window.open(this.project.liveDemoUrl, '_blank');
+      }
+    }
+  }
 };
 </script>
 
 <style scoped>
-.project-card {
-  background: linear-gradient(135deg, #ffffff, #f8faff);
-  border: 1px solid #e6e9ef;
-  border-radius: 12px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  padding: 25px;
-  width: 100%;
-  max-width: 360px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+.project-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 30px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.project-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+.project-row:last-child {
+  border-bottom: none;
+}
+
+.project-row:hover {
+  background-color: #f8fafc;
+  padding-left: 36px;
+}
+
+.project-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #3b82f6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.project-row:hover::before {
+  opacity: 1;
+}
+
+.row-content {
+  flex: 2;
+  padding-right: 20px;
+}
+
+.row-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .project-title {
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #1e293b;
-  margin-top: 0;
-  font-size: 1.5em;
+  margin: 0;
+}
+
+.category-badge {
+  font-size: 0.7rem;
   font-weight: 600;
-  border-bottom: 2px solid #3b82f6;
-  padding-bottom: 10px;
-}
-
-.project-category {
-  margin-top: 12px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 6px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.85em;
-  font-weight: 500;
+  background: #e0f2fe;
+  color: #0284c7;
 }
 
-.project-description {
-  color: #475569;
-  margin-top: 16px;
-  line-height: 1.6;
+.project-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.project-technologies {
-  margin-top: 16px;
-}
-
-.tech-list {
+.row-tech {
+  flex: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
-.tech-badge {
-  display: inline-flex;
+.tech-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.row-actions {
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 20px;
+}
+
+.action-icon {
+  font-size: 1.4rem;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+  z-index: 5; 
+}
+
+.action-icon:hover {
+  color: #1e293b;
+}
+
+.arrow-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   background: #f1f5f9;
-  color: #334155;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 0.8em;
-  transition: background 0.2s;
-}
-
-.tech-badge:hover {
-  background: #e2e8f0;
-}
-
-.project-links {
-  margin-top: auto;
-  padding-top: 20px;
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.link-button {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 15px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #fff;
-  flex-grow: 1;
-  font-weight: 500;
-  transition: transform 0.2s, background-color 0.3s ease;
+  color: #3b82f6;
+  transition: all 0.3s ease;
 }
 
-.link-button:hover {
-  transform: translateY(-2px);
+.project-row:hover .arrow-circle {
+  background: #3b82f6;
+  color: white;
+  transform: translateX(5px);
 }
 
-.github-link {
-  background-color: #24292f; /* GitHub resmi rengi */
-}
+@media (max-width: 768px) {
+  .project-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+  }
 
-.github-link:hover {
-  background-color: #000;
-}
+  .project-row:hover {
+    padding-left: 20px; 
+  }
 
-.demo-link {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-}
+  .row-content {
+    width: 100%;
+    padding: 0;
+  }
 
-.demo-link:hover {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  .row-tech {
+    display: none; 
+  }
+
+  .row-actions {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+  
+  .row-header {
+    flex-wrap: wrap;
+  }
 }
 </style>

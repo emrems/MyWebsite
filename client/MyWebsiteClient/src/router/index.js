@@ -38,17 +38,7 @@ const router = createRouter({
       path: "/articles/:slug",
       name: "Article-Detail",
       component: ArticleDetail,
-    },
-    {
-      path: "/skills",
-      name: "Skills",
-      component: () => import("@/components/About/Skills.vue"),
-    },
-    {
-      path: "/skills/:id",
-      name: "SkillDetail",
-      component: () => import("@/components/About/SkillDetail.vue"),
-    },
+    }
   ],
 });
 

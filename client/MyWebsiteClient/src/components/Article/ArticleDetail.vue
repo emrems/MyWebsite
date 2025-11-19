@@ -1,117 +1,106 @@
 <template>
-  <div class="article-detail-container">
-    <div v-if="loading" class="status-message loading-spinner">
+  <div class="article-detail-page-wrapper">
+    
+    <button class="back-to-articles-btn" @click="$router.push('/articles')">
+      <i class="fas fa-chevron-left"></i> Tüm Makaleler
+    </button>
+
+    <div v-if="loading" class="status-section loading-spinner">
       <div class="spinner"></div>
       <p>Makale yükleniyor...</p>
     </div>
-    
-    <div v-if="error" class="status-message error-message">
-      <i class="icon-error"></i>
+
+    <div v-else-if="error" class="status-section error-message-box">
+      <i class="fas fa-exclamation-triangle"></i>
       <p>{{ error }}</p>
-      <RouterLink to="/articles" class="back-button">← Blog Sayfasına Dön</RouterLink>
+      <RouterLink to="/articles" class="btn btn-primary">Blog Sayfasına Geri Dön</RouterLink>
     </div>
 
-    <div v-if="article" class="article-detail">
-      <div class="article-hero">
-        <div class="article-hero-image" :style="{ backgroundImage: 'url(https://picsum.photos/1200/600?random=' + article.id + ')' }"></div>
-        <div class="article-hero-content">
-          <div class="article-breadcrumb">
-            <RouterLink to="/">Ana Sayfa</RouterLink> 
-            <span class="breadcrumb-separator">/</span>
-            <RouterLink to="/articles">Blog</RouterLink>
-            <span class="breadcrumb-separator">/</span>
-            <span>{{ article.title }}</span>
-          </div>
-          
-          <h1 class="article-title">{{ article.title }}</h1>
-          
-          <div class="article-meta">
-            <div class="meta-item">
-              <i class="icon-calendar"></i>
-              <span>{{ formatDate(article.createdDate) }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="icon-clock"></i>
-              <span>{{ calculateReadingTime(article.content) }} dk okuma</span>
-            </div>
-            <div class="meta-item">
-              <i class="icon-user"></i>
-              <span>Yazar: Admin</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <article v-else-if="article" class="article-main-layout">
       
-      <div class="article-body">
-        <div class="article-content" v-html="article.content"></div>
+      <ArticleHero 
+        :article="article" 
+        :readingTime="calculateReadingTime(article.content)" 
+      />
+      
+      <div class="article-content-wrapper">
+        <div class="article-body-content" v-html="article.content"></div>
         
-        <div class="article-tags">
-          <span class="tag-label">Etiketler:</span>
-          <span class="tag">Teknoloji</span>
-          <span class="tag">Yazılım</span>
-          <span class="tag">Tasarım</span>
-        </div>
-        
-        <div class="article-actions">
-          <button class="action-button">
-            <i class="icon-like"></i> Beğen
-          </button>
-          <button class="action-button">
-            <i class="icon-share"></i> Paylaş
-          </button>
-          <button class="action-button">
-            <i class="icon-comment"></i> Yorum Yap
-          </button>
-        </div>
-        
-        <div class="article-navigation">
-          <RouterLink v-if="previousArticle" :to="`/articles/${previousArticle.slug}`" class="nav-link prev-article">
-            <i class="icon-arrow-left"></i>
-            <div class="nav-content">
-              <span>Önceki Yazı</span>
-              <p>{{ previousArticle.title }}</p>
-            </div>
-          </RouterLink>
+        <div class="article-meta-info">
+          <div class="tags-section">
+            <span class="meta-label">Etiketler:</span>
+            <span class="tag-pill" v-for="tag in article.tags" :key="tag">{{ tag }}</span>
+            <span class="tag-pill">Genel</span>
+          </div>
           
-          <RouterLink to="/articles" class="all-articles-link">
-            <i class="icon-grid"></i> Tüm Yazılar
-          </RouterLink>
-          
-          <RouterLink v-if="nextArticle" :to="`/articles/${nextArticle.slug}`" class="nav-link next-article">
-            <div class="nav-content">
-              <span>Sonraki Yazı</span>
-              <p>{{ nextArticle.title }}</p>
-            </div>
-            <i class="icon-arrow-right"></i>
-          </RouterLink>
+          <div class="actions-section">
+            <span class="meta-label">Paylaş:</span>
+            <button class="action-icon-btn" @click="isShareModalVisible = true">
+              <i class="fas fa-share-alt"></i>
+            </button>
+            <button class="action-icon-btn" @click="likeArticle">
+              <i class="fas fa-heart"></i>
+              <span>{{ article.likes || 0 }}</span>
+            </button>
+          </div>
         </div>
+        
+        <ArticleNavigation 
+          :previousArticle="previousArticle" 
+          :nextArticle="nextArticle" 
+        />
       </div>
-    </div>
+    </article>
+    
+    <ShareModal 
+      :isVisible="isShareModalVisible" 
+      :shareText="article ? `Bu makaleyi oku: ${article.title}` : 'İlginç bir makale!' "
+      @close="isShareModalVisible = false"
+    />
   </div>
 </template>
 
 <script>
 import ApiService from '@/services/ApiService';
+import ArticleHero from '@/components/Article/ArticleHero.vue';
+import ArticleNavigation from '@/components/Article/ArticleNavigation.vue';
+import ShareModal from '@/components/ShareModal.vue';
 
 export default {
+  name: 'ArticleDetail',
+  components: {
+    ArticleHero,
+    ArticleNavigation,
+    ShareModal
+  },
+  
   data() {
     return {
       article: null,
-      previousArticle: null,
-      nextArticle: null,
+      previousArticle: null, 
+      nextArticle: null,     
       loading: true,
-      error: null
+      error: null,
+      isShareModalVisible: false 
     };
   },
   
-  created() {
-    const slug = this.$route.params.slug;
-    this.fetchArticleBySlug(slug);
+  async created() {
+    await this.fetchArticleBySlug(this.$route.params.slug);
   },
   
+  mounted() {
+    // Sayfa yüklendiğinde en üste kaydır
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
   watch: {
-    '$route.params.slug'(newSlug) {
-      this.fetchArticleBySlug(newSlug);
+    '$route.params.slug': {
+      immediate: true, // Component ilk yüklendiğinde de çalışır
+      async handler(newSlug) {
+        await this.fetchArticleBySlug(newSlug);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Yeni makaleye geçişte üste kaydır
+      }
     }
   },
   
@@ -120,12 +109,15 @@ export default {
       this.loading = true;
       this.error = null;
       this.article = null;
+      this.previousArticle = null;
+      this.nextArticle = null;
 
-      const result = await ApiService.fetch(`article/slug/${slug}`);
+      const result = await ApiService.fetch(`article/slug/${slug}`); // Endpoint'inizi kontrol edin
       
       if (result.success) {
+        console.log(result.data)
         this.article = result.data;
-        this.simulateNavigationArticles();
+        this.simulateNavigationArticles(); // Simülasyon
       } else {
         this.error = result.message || 'Makale bulunamadı veya yüklenirken bir hata oluştu.';
       }
@@ -133,427 +125,315 @@ export default {
       this.loading = false;
     },
     
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('tr-TR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    },
-    
     calculateReadingTime(content) {
+      if (!content) return 1;
       const wordsPerMinute = 200;
-      const wordCount = content.split(' ').length;
-      return Math.ceil(wordCount / wordsPerMinute);
+      const textLength = content.split(/\s+/).length;
+      return Math.ceil(textLength / wordsPerMinute);
     },
     
+    // Geçici navigasyon makale simülasyonu (API'den gelene kadar)
     simulateNavigationArticles() {
       this.previousArticle = {
-        slug: 'previous-article-slug',
-        title: 'Önceki Makale Başlığı'
+        slug: 'onceki-makale-ornek',
+        title: 'Önceki Makale Başlığı Buraya'
       };
-      
       this.nextArticle = {
-        slug: 'next-article-slug',
-        title: 'Sonraki Makale Başlığı'
+        slug: 'sonraki-makale-ornek',
+        title: 'Sonraki Makale Başlığı Buraya'
       };
+    },
+
+    likeArticle() {
+      // Bu kısım API ile etkileşime girebilir (beğeni gönderme vb.)
+      // Şimdilik sadece beğeniyi artırma simülasyonu yapalım
+      if (this.article) {
+        this.article.likes = (this.article.likes || 0) + 1;
+        // console.log("Makale beğenildi!");
+      }
     }
   }
 };
 </script>
 
 <style scoped>
-.article-detail-container {
-  max-width: 100%;
+/*
+  Genel Kapsayıcı ve Durum Mesajları Stillleri
+*/
+.article-detail-page-wrapper {
+  padding-top: 80px; /* Header'dan dolayı boşluk */
+  background-color: #fcfcfc;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif; /* Global font */
+  color: #334155;
 }
 
-.status-message {
+.back-to-articles-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 20px 0;
+  margin: 0 auto;
+  max-width: 860px; /* İçerik genişliği ile hizala */
+  width: 100%;
+  transition: color 0.2s ease;
+}
+
+.back-to-articles-btn:hover {
+  color: #3b82f6;
+}
+
+/* Durum Mesajları (Yükleniyor, Hata) */
+.status-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 50vh;
   text-align: center;
+  padding: 40px;
 }
 
-.loading-spinner {
-  color: #3498db;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+.loading-spinner .spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e0e7ff;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
 }
+.loading-spinner p { color: #5a6781; font-size: 1.1rem; }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.error-message {
-  color: #e74c3c;
-  background: #fdf0ed;
-  padding: 3rem;
-  border-radius: 8px;
+.error-message-box {
+  background: #fff0f0;
+  color: #ef4444;
+  padding: 40px;
+  border-radius: 12px;
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 40px auto;
+  box-shadow: 0 5px 20px rgba(239, 68, 68, 0.1);
 }
-
-.error-message .icon-error {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.back-button {
-  margin-top: 1.5rem;
-  color: #e74c3c;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-}
-
-.back-button:hover {
-  text-decoration: underline;
-}
-
-.article-detail {
-  background: white;
-}
-
-.article-hero {
-  position: relative;
-  margin-bottom: 2rem;
-}
-
-.article-hero-image {
-  height: 400px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.article-hero-image:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
-}
-
-.article-hero-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 2rem;
+.error-message-box i { font-size: 3rem; margin-bottom: 20px; color: #ef4444; }
+.error-message-box p { font-size: 1.2rem; margin-bottom: 25px; }
+.error-message-box .btn-primary {
+  display: inline-block;
+  background: #ef4444;
   color: white;
-  z-index: 2;
-}
-
-.article-breadcrumb {
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.article-breadcrumb a {
-  color: rgba(255, 255, 255, 0.8);
+  padding: 12px 25px;
+  border-radius: 8px;
   text-decoration: none;
-}
-
-.article-breadcrumb a:hover {
-  color: white;
-  text-decoration: underline;
-}
-
-.breadcrumb-separator {
-  margin: 0 0.5rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.article-title {
-  font-size: 2.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.article-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.meta-item i {
-  margin-right: 0.5rem;
-  font-size: 1rem;
-}
-
-.article-body {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1.5rem 3rem;
-}
-
-.article-content {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #2c3e50;
-  margin-bottom: 2rem;
-}
-
-/* API'den gelen HTML içeriğinin stilini düzenler */
-.article-content >>> p {
-  margin-bottom: 1.5rem;
-}
-
-.article-content >>> h2,
-.article-content >>> h3 {
-  margin: 2rem 0 1rem;
-  color: #2c3e50;
   font-weight: 600;
+  transition: background 0.3s ease;
+}
+.error-message-box .btn-primary:hover {
+  background: #dc2626;
 }
 
-.article-content >>> h2 {
-  font-size: 1.8rem;
-  border-bottom: 2px solid #ecf0f1;
+
+/* --- Makale Ana Düzen --- */
+.article-main-layout {
+  padding-bottom: 80px;
+}
+
+.article-content-wrapper {
+  max-width: 800px; /* Okunabilir içerik genişliği */
+  margin: -80px auto 0 auto; /* Kahraman görselinin üzerine bindir */
+  background: white;
+  padding: 60px;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 10;
+}
+
+/* Makale İçeriği - v-html ile gelen dinamik HTML için stiller */
+.article-body-content {
+  line-height: 1.75;
+  font-size: 1.05rem;
+  color: #475569;
+  font-family: 'Merriweather', serif;
+}
+
+.article-body-content :deep(p) {
+  margin-bottom: 1.5rem;
+}
+
+.article-body-content :deep(h2),
+.article-body-content :deep(h3),
+.article-body-content :deep(h4) {
+  font-family: 'Inter', sans-serif;
+  color: #1e293b;
+  margin: 2.5rem 0 1rem;
+  font-weight: 700;
+}
+
+.article-body-content :deep(h2) {
+  font-size: 2rem;
   padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.article-content >>> h3 {
-  font-size: 1.5rem;
+.article-body-content :deep(h3) {
+  font-size: 1.6rem;
 }
 
-.article-content >>> img {
+.article-body-content :deep(img) {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
-  margin: 1.5rem 0;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  margin: 2rem 0;
+  display: block;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
-.article-content >>> blockquote {
-  border-left: 4px solid #3498db;
-  padding-left: 1.5rem;
-  margin: 1.5rem 0;
+.article-body-content :deep(blockquote) {
+  border-left: 5px solid #3b82f6;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  background: #f8fafc;
+  color: #475569;
   font-style: italic;
-  color: #7f8c8d;
-  background: #f8f9fa;
-  padding: 1.5rem;
   border-radius: 0 8px 8px 0;
 }
 
-.article-content >>> code {
-  background: #f8f9fa;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-}
-
-.article-content >>> pre {
-  background: #2d2d2d;
-  color: #f8f9fa;
+.article-body-content :deep(pre) {
+  background: #2d3748; /* Koyu arka plan */
+  color: #f8fafc;
   padding: 1.5rem;
   border-radius: 8px;
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
+  font-family: 'Fira Code', monospace; /* Kod fontu */
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-.article-content >>> ul, 
-.article-content >>> ol {
-  margin: 1rem 0;
-  padding-left: 1.5rem;
+.article-body-content :deep(code) {
+  background: rgba(0,0,0,0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+}
+.article-body-content :deep(pre code) {
+  background: none; /* pre içindeki code için arka planı kaldır */
+  padding: 0;
 }
 
-.article-content >>> li {
-  margin-bottom: 0.5rem;
-}
 
-.article-tags {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid #ecf0f1;
-  border-bottom: 1px solid #ecf0f1;
-}
-
-.tag-label {
-  font-weight: 600;
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.tag {
-  background: #ecf0f1;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  transition: all 0.3s;
-}
-
-.tag:hover {
-  background: #3498db;
-  color: white;
-  cursor: pointer;
-}
-
-.article-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
-}
-
-.action-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.7rem 1.5rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: #7f8c8d;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.action-button:hover {
-  background: #3498db;
-  color: white;
-  border-color: #3498db;
-}
-
-.article-navigation {
+/* Meta Bilgileri ve Aksiyonlar Bölümü */
+.article-meta-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2rem;
-  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 30px 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 40px;
+  gap: 20px; /* Küçük ekranlarda gap */
 }
 
-.nav-link {
+.meta-label {
+  font-weight: 700;
+  color: #64748b;
+  margin-right: 10px;
+  font-size: 0.95rem;
+}
+
+.tags-section, .actions-section {
   display: flex;
   align-items: center;
-  padding: 1rem;
-  border: 1px solid #ecf0f1;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #2c3e50;
-  transition: all 0.3s;
-  max-width: 300px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.nav-link:hover {
-  border-color: #3498db;
-  background: #f8f9fa;
-  transform: translateY(-3px);
-}
-
-.prev-article {
-  text-align: left;
-}
-
-.next-article {
-  text-align: right;
-}
-
-.nav-content span {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  display: block;
-  margin-bottom: 0.3rem;
-}
-
-.nav-content p {
+.tag-pill {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 500;
-  margin: 0;
-  line-height: 1.3;
+  transition: background 0.2s ease;
+  cursor: pointer;
 }
 
-.all-articles-link {
+.tag-pill:hover {
+  background: #cbd5e1;
+}
+
+.action-icon-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  background: #3498db;
-  color: white;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
+  justify-content: center;
+  color: #64748b;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.all-articles-link:hover {
-  background: #2980b9;
-  transform: translateY(-3px);
+.action-icon-btn:hover {
+  background: #e2e8f0;
+  color: #3b82f6;
+  transform: translateY(-2px);
 }
 
-/* İkonlar için base stil */
-[class^="icon-"] {
-  display: inline-block;
+.action-icon-btn .fa-heart {
+  color: #ef4444; /* Beğeni ikonu özel renk */
+}
+.action-icon-btn span {
+  font-size: 0.85rem;
+  margin-left: 5px;
+  color: #475569;
+  font-weight: 600;
 }
 
-.icon-calendar:before { content: "📅"; }
-.icon-clock:before { content: "🕒"; }
-.icon-user:before { content: "👤"; }
-.icon-error:before { content: "❗"; }
-.icon-like:before { content: "👍"; }
-.icon-share:before { content: "📤"; }
-.icon-comment:before { content: "💬"; }
-.icon-arrow-left:before { content: "←"; }
-.icon-arrow-right:before { content: "→"; }
-.icon-grid:before { content: "≡"; }
 
+/* Responsive Düzenlemeler */
 @media (max-width: 768px) {
-  .article-hero-image {
-    height: 300px;
+  .article-content-wrapper {
+    padding: 30px;
+    margin-top: -60px;
+    border-radius: 8px;
   }
-  
-  .article-title {
-    font-size: 2rem;
+  .back-to-articles-btn {
+    padding: 15px 20px;
+    font-size: 0.9rem;
   }
-  
-  .article-meta {
+  .article-body-content {
+    font-size: 1rem;
+  }
+  .article-body-content :deep(h2) {
+    font-size: 1.6rem;
+  }
+  .article-body-content :deep(h3) {
+    font-size: 1.3rem;
+  }
+  .article-meta-info {
     flex-direction: column;
-    gap: 0.8rem;
+    align-items: flex-start;
+    gap: 25px;
   }
-  
-  .article-body {
-    padding: 0 1rem 2rem;
-  }
-  
-  .article-navigation {
-    flex-direction: column;
-  }
-  
-  .nav-link, .all-articles-link {
-    max-width: 100%;
+  .tags-section, .actions-section {
     width: 100%;
-  }
-  
-  .article-actions {
-    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 </style>

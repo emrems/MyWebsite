@@ -5,43 +5,46 @@
       <p class="page-subtitle">Teknoloji, tasarım ve yazılım dünyasından en güncel içerikler</p>
     </div>
     
+    <!-- Loading State -->
     <div v-if="isLoading" class="status-message loading-spinner">
       <div class="spinner"></div>
       <p>Yazılar yükleniyor...</p>
     </div>
     
+    <!-- Error State -->
     <div v-else-if="getError" class="status-message error-message">
       <i class="icon-error"></i>
       <p>{{ getError }}</p>
       <button @click="fetchArticles" class="retry-button">Tekrar Dene</button>
     </div>
     
+    <!-- Articles Grid -->
     <div v-else-if="allArticles && allArticles.length > 0" class="articles-grid">
       <div v-for="article in allArticles" :key="article.id" class="article-card">
-        <div class="article-image" :style="{ backgroundImage: 'url(https://picsum.photos/400/200?random=' + article.id + ')' }">
-          <div class="article-category">Teknoloji</div>
+        <div class="article-image" :style="{ backgroundImage: 'url(https://picsum.photos/400/250?random=' + article.id + ')' }">
+          <div class="article-category">{{ article.category || 'Teknoloji' }}</div>
         </div>
         <div class="article-card-content">
           <h2>{{ article.title }}</h2>
-          <p class="article-date">
-            <i class="icon-calendar"></i>
-            {{ formatDate(article.createdDate) }}
-          </p>
-          <p class="article-content">{{ truncateContent(article.content, 120) }}</p>
-          <div class="article-footer">
-            <RouterLink :to="`/articles/${article.slug}`" class="read-more-link">
-              Devamını Oku
-              <i class="icon-arrow"></i>
-            </RouterLink>
-            <div class="reading-time">
+          <div class="article-meta">
+            <span class="article-date">
+              <i class="icon-calendar"></i>
+              {{ formatDate(article.createdDate) }}
+            </span>
+            <span class="reading-time">
               <i class="icon-clock"></i>
               {{ calculateReadingTime(article.content) }} dk okuma
-            </div>
+            </span>
           </div>
+          <p class="article-snippet">{{ truncateContent(article.content, 140) }}</p>
+          <RouterLink :to="`/articles/${article.slug}`" class="read-more-link">
+            Devamını Oku <i class="icon-arrow"></i>
+          </RouterLink>
         </div>
       </div>
     </div>
     
+    <!-- Empty State -->
     <div v-else class="status-message empty-state">
       <i class="icon-empty"></i>
       <p>Henüz makale bulunmamaktadır.</p>
@@ -59,7 +62,7 @@ export default {
   
   methods: {
     ...mapActions('articles', ['fetchArticles']),
-    
+
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('tr-TR', {
@@ -68,18 +71,18 @@ export default {
         day: 'numeric'
       });
     },
-    
+
     truncateContent(content, length) {
       return content.length > length ? content.substring(0, length) + '...' : content;
     },
-    
+
     calculateReadingTime(content) {
       const wordsPerMinute = 200;
       const wordCount = content.split(' ').length;
       return Math.ceil(wordCount / wordsPerMinute);
     }
   },
-  
+
   created() {
     this.fetchArticles();
   }
@@ -89,8 +92,7 @@ export default {
 <style scoped>
 .articles-container {
   max-width: 1200px;
-  /* Üstten 80px boşluk ekledik. Bu değeri navigasyon barınızın yüksekliğine göre ayarlayabilirsiniz. */
-  padding: 80px 1rem 0; /* Üst, sağ/sol, alt */
+  padding: 80px 1rem 0;
   margin: 0 auto;
 }
 
@@ -113,6 +115,7 @@ export default {
   margin: 0 auto;
 }
 
+/* Status Messages */
 .status-message {
   display: flex;
   flex-direction: column;
@@ -171,6 +174,9 @@ export default {
 
 .empty-state {
   color: #95a5a6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .empty-state .icon-empty {
@@ -178,29 +184,31 @@ export default {
   margin-bottom: 1rem;
 }
 
+/* Articles Grid */
 .articles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
 }
 
+/* Article Card */
 .article-card {
   background-color: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
 .article-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.1);
 }
 
 .article-image {
-  height: 200px;
+  height: 250px;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -218,6 +226,7 @@ export default {
   font-weight: 500;
 }
 
+/* Card Content */
 .article-card-content {
   padding: 1.5rem;
   flex-grow: 1;
@@ -225,7 +234,7 @@ export default {
   flex-direction: column;
 }
 
-.article-card h2 {
+.article-card-content h2 {
   font-size: 1.4rem;
   color: #2c3e50;
   margin-bottom: 0.8rem;
@@ -233,37 +242,34 @@ export default {
   font-weight: 600;
 }
 
-.article-date {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.article-date .icon-calendar {
-  margin-right: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.article-content {
-  font-size: 1rem;
-  color: #34495e;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-}
-
-.article-footer {
+/* Meta Info */
+.article-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 1rem;
 }
 
+.article-meta i {
+  margin-right: 0.3rem;
+}
+
+/* Snippet */
+.article-snippet {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #34495e;
+  line-height: 1.6;
+  margin-bottom: 1.2rem;
+}
+
+/* Read More Button */
 .read-more-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 0.6rem 1.2rem;
   background-color: #3498db;
   color: white;
@@ -275,7 +281,7 @@ export default {
 
 .read-more-link:hover {
   background-color: #2980b9;
-  transform: translateX(5px);
+  transform: translateY(-2px);
 }
 
 .read-more-link .icon-arrow {
@@ -287,18 +293,7 @@ export default {
   transform: translateX(3px);
 }
 
-.reading-time {
-  font-size: 0.8rem;
-  color: #95a5a6;
-  display: flex;
-  align-items: center;
-}
-
-.reading-time .icon-clock {
-  margin-right: 0.3rem;
-}
-
-/* İkonlar için base stil (gerçek uygulamada font-icon veya SVG kullanılmalı) */
+/* İkonlar */
 [class^="icon-"] {
   display: inline-block;
   width: 1em;
@@ -312,6 +307,7 @@ export default {
 .icon-error:before { content: "❗"; }
 .icon-empty:before { content: "📝"; }
 
+/* Responsive */
 @media (max-width: 768px) {
   .articles-grid {
     grid-template-columns: 1fr;
@@ -321,10 +317,15 @@ export default {
     font-size: 2rem;
   }
   
-  .article-footer {
+  .article-meta {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.3rem;
+  }
+  
+  .read-more-link {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

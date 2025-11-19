@@ -21,7 +21,18 @@ namespace MyWebsite.Repository.config
         public DbSet<ArticleLike> ArticleLikes { get; set; }
         public DbSet<Experience> Experinces { get; set; }
         public DbSet<Skill> Skills { get; set; }
-     //   public DbSet<Media> Medias { get; set; }
+        //   public DbSet<Media> Medias { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Article tablosundaki Content alanını açıkça büyük metin tipi olarak ayarlayın.
+            modelBuilder.Entity<Article>()
+                .Property(a => a.Content)
+                .HasColumnType("nvarchar(max)"); 
+
+          
+        }
     }
 }

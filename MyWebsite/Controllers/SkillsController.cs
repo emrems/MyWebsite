@@ -19,5 +19,12 @@ namespace MyWebsite.Controllers
             var result = await _manager.SkillService.GetAllSkills();
             return CreateResponse(result);
         }
+
+        [HttpGet("getById/{id}")] 
+        public async Task<IActionResult> GetAllSkillById(int id)
+        {
+            var result = await _manager.SkillService.GetSkillById(id);
+            return CreateResponse(result);
+        }
     }
 }

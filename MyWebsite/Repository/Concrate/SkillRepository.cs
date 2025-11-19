@@ -17,5 +17,13 @@ namespace MyWebsite.Repository.Concrate
             return skills;
             
         }
+
+        public async Task<Skill> GetSkillById(int id)
+        {
+            //var skill = await _DbContext.Skills.FirstOrDefaultAsync(skil => skil.Id == id);
+            //return skill;
+            var skill = await GetByIdAsync(id);
+            return skill;
+        }
     }
 }

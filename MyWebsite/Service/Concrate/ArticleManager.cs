@@ -22,29 +22,51 @@ namespace MyWebsite.Service.Concrate
 
         public async Task<BaseResponse<object>> CreateArticleAsync(CreateArticleDtos articleDto)
         {
-            var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if(userId is null)
+            var article = new Article
             {
-                throw new UnAuthorizedException("lütfen giriş yapınız");
-            }
-            var article = new Article {
                 Title = articleDto.Title,
                 Content = articleDto.Content,
                 Slug = articleDto.Slug,
                 AuthorId = articleDto.AuthorId,
                 CategoryId = articleDto.CategoryId,
-
             };
+
             await _repository.ArticleRepository.AddAsync(article);
-            await _repository.SaveAsync();
-            return new BaseResponse<object>
-            {
-                IsSuccess = true,
-                Message = "Article başarıyla oluşturuldu",
-                Data = null,
-                ErrroCode = null
-            };
 
+            try
+            {
+                // Hatanın oluştuğu yer
+                await _repository.SaveAsync();
+
+                return new BaseResponse<object>
+                {
+                    IsSuccess = true,
+                    Message = "Article başarıyla oluşturuldu",
+                    Data = null,
+                    ErrroCode = null
+                };
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                // 🚨 Gerçek hatayı burada yakalıyoruz.
+
+                // 1. Konsola yazdırın
+                Console.WriteLine("EF Core Hata Mesajı: " + ex.Message);
+
+                // 2. SQL Server'dan gelen asıl iç hatayı (Inner Exception) yazdırın
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("SQL Server İç Hata: " + ex.InnerException.Message);
+                }
+
+                // Hata olduğunu belirten yanıtı döndürün.
+                return new BaseResponse<object>
+                {
+                    IsSuccess = false,
+                    Message = "Kayıt sırasında veritabanı hatası oluştu. Logları kontrol edin.",
+                    ErrroCode = "500"
+                };
+            }
         }
 
         public  async Task<BaseResponse<object>> DeleteArticleAsync(int id)

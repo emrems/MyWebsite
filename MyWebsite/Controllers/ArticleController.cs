@@ -34,7 +34,7 @@ namespace MyWebsite.Controllers
             return CreateResponse(articles);
         }
 
-        [Authorize]
+       // [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateArticle([FromBody] CreateArticleDtos articleDto)
         {

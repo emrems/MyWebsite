@@ -6,5 +6,6 @@ namespace MyWebsite.Service.İnterfaces
     public interface ISkilService
     {
         Task<BaseResponse<IEnumerable<ReadSkillDtos>>> GetAllSkills();
+        Task<BaseResponse<ReadSkillDtos>> GetSkillById(int id);
      }
 }
