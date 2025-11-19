@@ -12,7 +12,8 @@ namespace MyWebsite.Repository.Concrate
         private readonly Lazy<IArticleRepository> _articleRepository;
         private readonly Lazy<IMessageRepository> _messageRepository;
         private readonly Lazy<ICommentRepository> _commentRepository;
-        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository )
+        private readonly Lazy<ISkillsRepository> _skillsRepository;
+        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository, Lazy<ISkillsRepository> skillsRepository)
         {
             _dbContext = dbContext;
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(dbContext));
@@ -21,6 +22,7 @@ namespace MyWebsite.Repository.Concrate
             _articleRepository = new Lazy<IArticleRepository>(() => new ArticleRepository(dbContext));
             _messageRepository = new Lazy<IMessageRepository>(() => new MessageRepository(dbContext));
             _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(dbContext));
+            _skillsRepository = new Lazy<ISkillsRepository>(() => new SkillRepository(dbContext));
         }
 
         public IUserRepository UserRepository => _userRepository.Value;
@@ -34,6 +36,8 @@ namespace MyWebsite.Repository.Concrate
         public IMessageRepository MessageRepository => _messageRepository.Value;
 
         public ICommentRepository CommentRepository => _commentRepository.Value;
+
+        public ISkillsRepository SkillsRepository => _skillsRepository.Value;
 
         public async Task SaveAsync()
         {

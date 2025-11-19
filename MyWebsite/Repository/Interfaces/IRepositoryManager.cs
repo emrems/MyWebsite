@@ -8,6 +8,7 @@
         IArticleRepository ArticleRepository { get; }
         IMessageRepository MessageRepository { get; }
         ICommentRepository CommentRepository { get; }
+        ISkillsRepository SkillsRepository { get; }
         Task SaveAsync();
     }
 }

@@ -80,6 +80,8 @@ builder.Services.AddScoped<IMessageService, MessageManager>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentManager>();
+builder.Services.AddScoped<ISkillsRepository, SkillRepository>();
+
 
 // validators
 //builder.Services.AddScoped<IValidator<CreateCategoryValidator>>();

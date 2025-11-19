@@ -80,7 +80,7 @@ export default {
       name: "Emre Almamış",
       jobTitle: "Yazılım Geliştirici",
       location: "Kocaeli, Türkiye",
-      profileImage: "/path/to/your/photo.jpg",
+      profileImage: "../Image/emre.jpg",
       description: "Bilgisayar Mühendisliği alanında yeni mezun, modern web teknolojileri ve yazılım geliştirme konularında tutkulu bir geliştiriciyim. Vue.js, React ve Node.js gibi teknolojilerle projeler geliştiriyor, sürekli öğrenmeye ve kendimi geliştirmeye odaklanıyorum. Yaratıcı çözümler üretmek ve kullanıcı deneyimini ön planda tutan uygulamalar geliştirmek benim için büyük bir motivasyon kaynağı.",
       
       skills: [
