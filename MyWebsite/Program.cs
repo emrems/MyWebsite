@@ -81,6 +81,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentManager>();
 builder.Services.AddScoped<ISkillsRepository, SkillRepository>();
+builder.Services.AddScoped<ISkilService, SkillManager>();
 
 
 // validators

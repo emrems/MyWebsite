@@ -7,7 +7,7 @@
         <div class="title-underline"></div>
       </div>
 
-      <!-- Profil ve Ana Bilgiler -->
+      <!-- Profil Bilgileri -->
       <div class="profile-section">
         <div class="profile-image">
           <img :src="profileImage" :alt="name" />
@@ -27,10 +27,13 @@
       <!-- Yetenekler -->
       <div class="skills-section">
         <h4>Teknik Yetenekler</h4>
-        <div class="skills-grid">
+
+        <div v-if="loadingSkills" class="loading">Yetenekler yükleniyor...</div>
+
+        <div v-else class="skills-grid">
           <div 
             v-for="skill in skills" 
-            :key="skill.name" 
+            :key="skill.id" 
             class="skill-item"
           >
             <span class="skill-name">{{ skill.name }}</span>
@@ -73,26 +76,22 @@
 </template>
 
 <script>
+import ApiService from "@/services/ApiService";
+import emreImage from "@/Image/emre.jpg";
 export default {
   name: 'AboutSection',
+
   data() {
     return {
       name: "Emre Almamış",
       jobTitle: "Yazılım Geliştirici",
       location: "Kocaeli, Türkiye",
-      profileImage: "../Image/emre.jpg",
-      description: "Bilgisayar Mühendisliği alanında yeni mezun, modern web teknolojileri ve yazılım geliştirme konularında tutkulu bir geliştiriciyim. Vue.js, React ve Node.js gibi teknolojilerle projeler geliştiriyor, sürekli öğrenmeye ve kendimi geliştirmeye odaklanıyorum. Yaratıcı çözümler üretmek ve kullanıcı deneyimini ön planda tutan uygulamalar geliştirmek benim için büyük bir motivasyon kaynağı.",
-      
-      skills: [
-        { name: "Vue.js" },
-        { name: "JavaScript" },
-        { name: "HTML/CSS" },
-        { name: "React" },
-        { name: "Node.js" },
-        { name: "Python" },
-        { name: "Git" },
-        { name: "SQL" }
-      ],
+      profileImage:emreImage,
+
+      description: "Bilgisayar Mühendisliği alanında yeni mezun, modern web teknolojileri ve yazılım geliştirme konularında tutkulu bir geliştiriciyim. Vue.js, React ve Node.js gibi teknolojilerle projeler geliştiriyor, sürekli öğrenmeye ve kendimi geliştirmeye odaklanıyorum.",
+
+      skills: [],             
+      loadingSkills: true,    
 
       stats: [
         { value: "2024", label: "Mezuniyet Yılı" },
@@ -108,9 +107,28 @@ export default {
         { platform: "Portfolio", url: "https://yourportfolio.com" }
       ]
     }
+  },
+
+  async created() {
+    await this.loadSkills();
+  },
+
+  methods: {
+    async loadSkills() {
+      const result = await ApiService.fetch("Skills");
+
+      if (result.success) {
+        this.skills = result.data;
+      } else {
+        console.error("Skills yüklenirken hata:", result.message);
+      }
+
+      this.loadingSkills = false;
+    }
   }
 }
 </script>
+
 
 <style scoped>
 .about-section {

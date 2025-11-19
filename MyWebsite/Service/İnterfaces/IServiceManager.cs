@@ -9,6 +9,7 @@
         IMessageService MessageService { get; }
         IAuthService AuthService { get; }
         ICommentService CommentService { get; }
+        ISkilService SkillService { get; }
 
 
     }

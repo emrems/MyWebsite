@@ -13,7 +13,7 @@ namespace MyWebsite.Repository.Concrate
         private readonly Lazy<IMessageRepository> _messageRepository;
         private readonly Lazy<ICommentRepository> _commentRepository;
         private readonly Lazy<ISkillsRepository> _skillsRepository;
-        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository, Lazy<ISkillsRepository> skillsRepository)
+        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository)
         {
             _dbContext = dbContext;
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(dbContext));
