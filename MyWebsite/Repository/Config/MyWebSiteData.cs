@@ -18,6 +18,10 @@ namespace MyWebsite.Repository.config
         public DbSet<Log> Logs { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<ArticleLike> ArticleLikes { get; set; }
+        public DbSet<Experience> Experinces { get; set; }
+        public DbSet<Skill> Skills { get; set; }
+     //   public DbSet<Media> Medias { get; set; }
 
     }
 }

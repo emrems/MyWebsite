@@ -1,3 +1,4 @@
+
 import ApiService from '@/services/ApiService';
 
 const state = {
@@ -23,15 +24,16 @@ const actions = {
     commit('setLoading', true);
     commit('setError', null);
 
-    try {
-      const response = await ApiService.get('article/all');
-      commit('setArticles', response.data);
-    } catch (exception) {
-      console.error('Makaleler çekilirken hata oluştu:', exception);
-      commit('setError', 'Makaleler yüklenirken bir hata oluştu.');
-    } finally {
-      commit('setLoading', false);
+    const result = await ApiService.fetch('article/all');
+    
+    if (result.success) {
+      commit('setArticles', result.data);
+    } else {
+      commit('setError', result.message);
+      commit('setArticles', []);
     }
+    
+    commit('setLoading', false);
   }
 };
 

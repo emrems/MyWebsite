@@ -56,6 +56,7 @@ export default {
   computed: {
     ...mapGetters('articles', ['allArticles', 'isLoading', 'getError'])
   },
+  
   methods: {
     ...mapActions('articles', ['fetchArticles']),
     
@@ -67,15 +68,18 @@ export default {
         day: 'numeric'
       });
     },
+    
     truncateContent(content, length) {
       return content.length > length ? content.substring(0, length) + '...' : content;
     },
+    
     calculateReadingTime(content) {
       const wordsPerMinute = 200;
       const wordCount = content.split(' ').length;
       return Math.ceil(wordCount / wordsPerMinute);
     }
   },
+  
   created() {
     this.fetchArticles();
   }

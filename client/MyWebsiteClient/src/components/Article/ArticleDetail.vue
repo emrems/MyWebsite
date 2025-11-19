@@ -103,25 +103,36 @@ export default {
       error: null
     };
   },
+  
   created() {
     const slug = this.$route.params.slug;
     this.fetchArticleBySlug(slug);
   },
+  
+  watch: {
+    '$route.params.slug'(newSlug) {
+      this.fetchArticleBySlug(newSlug);
+    }
+  },
+  
   methods: {
     async fetchArticleBySlug(slug) {
-      try {
-        const response = await ApiService.get(`article/slug/${slug}`);
-        this.article = response.data;
-        
-        // Önceki ve sonraki makaleleri simüle et (gerçek uygulamada API'den alınır)
+      this.loading = true;
+      this.error = null;
+      this.article = null;
+
+      const result = await ApiService.fetch(`article/slug/${slug}`);
+      
+      if (result.success) {
+        this.article = result.data;
         this.simulateNavigationArticles();
-      } catch (exception) {
-        console.error('API isteği başarısız oldu:', exception);
-        this.error = 'Makale bulunamadı veya yüklenirken bir hata oluştu.';
-      } finally {
-        this.loading = false;
+      } else {
+        this.error = result.message || 'Makale bulunamadı veya yüklenirken bir hata oluştu.';
       }
+      
+      this.loading = false;
     },
+    
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString('tr-TR', {
@@ -130,13 +141,14 @@ export default {
         day: 'numeric'
       });
     },
+    
     calculateReadingTime(content) {
       const wordsPerMinute = 200;
       const wordCount = content.split(' ').length;
       return Math.ceil(wordCount / wordsPerMinute);
     },
+    
     simulateNavigationArticles() {
-      // Gerçek uygulamada API'den alınacak
       this.previousArticle = {
         slug: 'previous-article-slug',
         title: 'Önceki Makale Başlığı'
