@@ -10,7 +10,7 @@
         Vue.js, ASP.NET Core ve MSSQL odaklı web çözümleri geliştiren bir yazılım mühendisiyim. İhtiyaca yönelik, ölçeklenebilir ve kullanıcı dostu uygulamalar tasarlıyorum.
       </p>
       <div class="hero-buttons">
-        <router-link to="/projects" class="btn btn-primary">
+        <router-link to="/project" class="btn btn-primary">
           Projelerim
         </router-link>
         <router-link to="/contact" class="btn btn-primary">

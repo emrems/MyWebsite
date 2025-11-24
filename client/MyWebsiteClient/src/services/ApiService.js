@@ -106,7 +106,7 @@ const ApiService = {
       if (status === 404) {
         return 'İstenilen kaynak bulunamadı.';
       } else if (status === 401) {
-        return 'Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.';
+        return 'Lütfen  giriş yapın.';
       } else if (status === 403) {
         return 'Bu işlem için yetkiniz bulunmamaktadır.';
       } else if (status === 500) {
@@ -118,7 +118,7 @@ const ApiService = {
       }
     } else if (error.request) {
      
-      return 'Sunucuya bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin veya sunucunun çalıştığından emin olun.';
+      return 'Lütfen internet bağlantınızı kontrol edin veya sunucunun çalıştığından emin olun.';
     }
     
    

@@ -2,6 +2,42 @@
   <div v-if="isVisible" class="modal-overlay" @click="closeModal">
     <div class="share-modal" @click.stop>
       <h3>Paylaş</h3>
+      
+      <!-- Yorum Bölümü -->
+      <div class="comment-section" v-if="showCommentSection">
+        <h4>Yorum Yap</h4>
+        <textarea 
+          v-model="commentText" 
+          placeholder="Yorumunuzu buraya yazın..."
+          rows="4"
+          class="comment-textarea"
+          :disabled="isSubmitting"
+        ></textarea>
+        <div class="comment-actions">
+          <button 
+            @click="submitComment" 
+            class="submit-comment-btn" 
+            :disabled="!commentText.trim() || isSubmitting"
+          >
+            <span v-if="isSubmitting" class="button-loading">
+              <i class="fas fa-spinner fa-spin"></i>
+              Gönderiliyor...
+            </span>
+            <span v-else>
+              <i class="fas fa-paper-plane"></i>
+              Yorumu Gönder
+            </span>
+          </button>
+          <button 
+            @click="cancelComment" 
+            class="cancel-comment-btn"
+            :disabled="isSubmitting"
+          >
+            İptal
+          </button>
+        </div>
+      </div>
+
       <div class="share-options">
         <button @click="shareOn('whatsapp')" class="share-option whatsapp">
           <svg viewBox="0 0 24 24" class="social-icon">
@@ -33,6 +69,13 @@
           </svg>
           Linki Kopyala
         </button>
+        <!-- Yorum Yap Butonu -->
+        <button @click="showCommentSection = true" class="share-option comment">
+          <svg viewBox="0 0 24 24" class="social-icon">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+          </svg>
+          Yorum Yap
+        </button>
       </div>
       <button @click="closeModal" class="close-button">Kapat</button>
     </div>
@@ -40,6 +83,8 @@
 </template>
 
 <script>
+import ApiService from '@/services/ApiService';
+
 export default {
   name: 'ShareModal',
   
@@ -55,11 +100,27 @@ export default {
     shareText: {
       type: String,
       default: ''
+    },
+    articleId: {
+      type: Number,
+      default: null
     }
   },
 
+  data() {
+    return {
+      showCommentSection: false,
+      commentText: '',
+      isSubmitting: false
+    };
+  },
+
+  inject: ['notify'],
+
   methods: {
     closeModal() {
+      this.showCommentSection = false;
+      this.commentText = '';
       this.$emit('close');
     },
 
@@ -75,25 +136,147 @@ export default {
       };
       
       window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+      
+      // Paylaşım bildirimi
+      this.showNotification({
+        type: 'success',
+        title: 'Paylaşıldı',
+        message: `${this.getPlatformName(platform)}'da paylaşıldı`
+      });
+      
       this.closeModal();
     },
 
-    copyLink() {
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          this.$emit('link-copied');
-          alert('Link kopyalandı! ✓');
-          this.closeModal();
-        })
-        .catch(err => {
-          console.error('Kopyalama hatası:', err);
+    getPlatformName(platform) {
+      const names = {
+        whatsapp: 'WhatsApp',
+        twitter: 'Twitter',
+        facebook: 'Facebook',
+        linkedin: 'LinkedIn'
+      };
+      return names[platform] || platform;
+    },
+
+    async copyLink() {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        this.showNotification({
+          type: 'success',
+          title: 'Başarılı',
+          message: 'Link panoya kopyalandı!'
         });
+        this.$emit('link-copied');
+        this.closeModal();
+      } catch (err) {
+        console.error('Kopyalama hatası:', err);
+        this.showNotification({
+          type: 'error',
+          title: 'Hata',
+          message: 'Link kopyalanırken bir hata oluştu'
+        });
+      }
+    },
+
+    async submitComment() {
+      if (!this.commentText.trim()) {
+        this.showNotification({
+          type: 'warning',
+          title: 'Uyarı',
+          message: 'Lütfen yorumunuzu yazın'
+        });
+        return;
+      }
+
+      if (!this.articleId) {
+        this.showNotification({
+          type: 'error',
+          title: 'Hata',
+          message: 'Makale bilgisi bulunamadı'
+        });
+        return;
+      }
+
+      this.isSubmitting = true;
+
+      try {
+        const commentData = {
+          content: this.commentText.trim(),
+          articleId: this.articleId
+        };
+
+        const result = await ApiService.create('comment/CreateComment', commentData);
+
+        if (result.success) {
+          this.showNotification({
+            type: 'success',
+            title: 'Başarılı',
+            message: 'Yorumunuz başarıyla gönderildi!'
+          });
+          
+          this.$emit('comment-submitted', result.data);
+          this.commentText = '';
+          this.showCommentSection = false;
+          this.closeModal();
+        } else {
+          this.showNotification({
+            type: 'error',
+            title: 'Hata',
+            message: result.message || 'Yorum gönderilemedi'
+          });
+        }
+      } catch (error) {
+        console.error('Yorum gönderme hatası:', error);
+        this.showNotification({
+          type: 'error',
+          title: 'Hata',
+          message: 'Yorum gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'
+        });
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+
+    cancelComment() {
+      this.showCommentSection = false;
+      this.commentText = '';
+    },
+
+    showNotification(options) {
+      if (this.notify && typeof this.notify.show === 'function') {
+        return this.notify.show(options);
+      } else if (this.$notify && typeof this.$notify.show === 'function') {
+        return this.$notify.show(options);
+      }
+      
+      // Fallback to console if notification system not available
+      console.log('Notification:', options);
+    }
+  },
+
+  watch: {
+    isVisible(newVal) {
+      if (!newVal) {
+        this.showCommentSection = false;
+        this.commentText = '';
+        this.isSubmitting = false;
+      }
     }
   }
 };
 </script>
 
+
 <style scoped>
+.button-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submit-comment-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -121,10 +304,12 @@ export default {
   background: white;
   padding: 30px;
   border-radius: 12px;
-  max-width: 400px;
+  max-width: 450px;
   width: 90%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes slideUp {
@@ -143,6 +328,79 @@ export default {
   text-align: center;
   color: #2c3e50;
   font-size: 1.5rem;
+}
+
+/* Yorum Bölümü Stilleri */
+.comment-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.comment-section h4 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.comment-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.comment-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.submit-comment-btn {
+  flex: 1;
+  padding: 10px 15px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.submit-comment-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.submit-comment-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancel-comment-btn {
+  padding: 10px 15px;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.cancel-comment-btn:hover {
+  background: #4b5563;
 }
 
 .share-options {
@@ -233,6 +491,17 @@ export default {
   color: white;
 }
 
+/* Yorum Butonu */
+.share-option.comment {
+  color: #8b5cf6;
+  border-color: #8b5cf6;
+}
+
+.share-option.comment:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
 .close-button {
   width: 100%;
   padding: 12px;
@@ -257,6 +526,10 @@ export default {
 
   .share-options {
     grid-template-columns: 1fr;
+  }
+
+  .comment-actions {
+    flex-direction: column;
   }
 }
 </style>

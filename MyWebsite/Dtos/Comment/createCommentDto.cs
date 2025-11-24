@@ -6,7 +6,7 @@ namespace MyWebsite.Dtos.Comment
     {
 
         public string Content { get; set; }     
-        public int UserId { get; set; }// token içinden de alınabilir şimdilik bu şekilde kalsın
+      //  public int UserId { get; set; }// token içinden de alınabilir şimdilik bu şekilde kalsın
         public int? ArticleId { get; set; }                
         //public int? ProjectId { get; set; }               
 

@@ -1,6 +1,5 @@
 <template>
   <div class="article-detail-page-wrapper">
-    
     <button class="back-to-articles-btn" @click="$router.push('/articles')">
       <i class="fas fa-chevron-left"></i> Tüm Makaleler
     </button>
@@ -17,22 +16,18 @@
     </div>
 
     <article v-else-if="article" class="article-main-layout">
-      
-      <ArticleHero 
-        :article="article" 
-        :readingTime="calculateReadingTime(article.content)" 
-      />
-      
+      <ArticleHero :article="article" :readingTime="calculateReadingTime(article.content)" />
+
       <div class="article-content-wrapper">
         <div class="article-body-content" v-html="article.content"></div>
-        
+
         <div class="article-meta-info">
           <div class="tags-section">
             <span class="meta-label">Etiketler:</span>
             <span class="tag-pill" v-for="tag in article.tags" :key="tag">{{ tag }}</span>
             <span class="tag-pill">Genel</span>
           </div>
-          
+
           <div class="actions-section">
             <span class="meta-label">Paylaş:</span>
             <button class="action-icon-btn" @click="isShareModalVisible = true">
@@ -44,67 +39,71 @@
             </button>
           </div>
         </div>
-        
-        <ArticleNavigation 
-          :previousArticle="previousArticle" 
-          :nextArticle="nextArticle" 
-        />
+
+        <ArticleNavigation :previousArticle="previousArticle" :nextArticle="nextArticle" />
       </div>
     </article>
-    
-    <ShareModal 
-      :isVisible="isShareModalVisible" 
-      :shareText="article ? `Bu makaleyi oku: ${article.title}` : 'İlginç bir makale!' "
+
+    <ShareModal
+      :isVisible="isShareModalVisible"
+      :shareText="article ? `Bu makaleyi oku: ${article.title}` : 'İlginç bir makale!'"
+      :articleId="article?.id"
       @close="isShareModalVisible = false"
+      @comment-submitted="onCommentSubmitted"
     />
   </div>
 </template>
 
 <script>
-import ApiService from '@/services/ApiService';
-import ArticleHero from '@/components/Article/ArticleHero.vue';
-import ArticleNavigation from '@/components/Article/ArticleNavigation.vue';
-import ShareModal from '@/components/ShareModal.vue';
+import ApiService from "@/services/ApiService";
+import ArticleHero from "@/components/Article/ArticleHero.vue";
+import ArticleNavigation from "@/components/Article/ArticleNavigation.vue";
+import ShareModal from "@/components/ShareModal.vue";
 
 export default {
-  name: 'ArticleDetail',
+  name: "ArticleDetail",
   components: {
     ArticleHero,
     ArticleNavigation,
-    ShareModal
+    ShareModal,
   },
-  
+
   data() {
     return {
       article: null,
-      previousArticle: null, 
-      nextArticle: null,     
+      previousArticle: null,
+      nextArticle: null,
       loading: true,
       error: null,
-      isShareModalVisible: false 
+      isShareModalVisible: false,
     };
   },
-  
+
   async created() {
     await this.fetchArticleBySlug(this.$route.params.slug);
   },
-  
+
   mounted() {
     // Sayfa yüklendiğinde en üste kaydır
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   },
 
   watch: {
-    '$route.params.slug': {
+    "$route.params.slug": {
       immediate: true, // Component ilk yüklendiğinde de çalışır
       async handler(newSlug) {
         await this.fetchArticleBySlug(newSlug);
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // Yeni makaleye geçişte üste kaydır
-      }
-    }
+        window.scrollTo({ top: 0, behavior: "smooth" }); // Yeni makaleye geçişte üste kaydır
+      },
+    },
   },
-  
+
   methods: {
+    onCommentSubmitted(commentData) {
+      console.log("Yorum gönderildi:", commentData);
+      // İsterseniz burada yorum listesini güncelleyebilirsiniz
+      // veya kullanıcıya feedback verebilirsiniz
+    },
     async fetchArticleBySlug(slug) {
       this.loading = true;
       this.error = null;
@@ -113,34 +112,34 @@ export default {
       this.nextArticle = null;
 
       const result = await ApiService.fetch(`article/slug/${slug}`); // Endpoint'inizi kontrol edin
-      
+
       if (result.success) {
-        console.log(result.data)
+        console.log(result.data);
         this.article = result.data;
         this.simulateNavigationArticles(); // Simülasyon
       } else {
-        this.error = result.message || 'Makale bulunamadı veya yüklenirken bir hata oluştu.';
+        this.error = result.message || "Makale bulunamadı veya yüklenirken bir hata oluştu.";
       }
-      
+
       this.loading = false;
     },
-    
+
     calculateReadingTime(content) {
       if (!content) return 1;
       const wordsPerMinute = 200;
       const textLength = content.split(/\s+/).length;
       return Math.ceil(textLength / wordsPerMinute);
     },
-    
+
     // Geçici navigasyon makale simülasyonu (API'den gelene kadar)
     simulateNavigationArticles() {
       this.previousArticle = {
-        slug: 'onceki-makale-ornek',
-        title: 'Önceki Makale Başlığı Buraya'
+        slug: "onceki-makale-ornek",
+        title: "Önceki Makale Başlığı Buraya",
       };
       this.nextArticle = {
-        slug: 'sonraki-makale-ornek',
-        title: 'Sonraki Makale Başlığı Buraya'
+        slug: "sonraki-makale-ornek",
+        title: "Sonraki Makale Başlığı Buraya",
       };
     },
 
@@ -151,8 +150,8 @@ export default {
         this.article.likes = (this.article.likes || 0) + 1;
         // console.log("Makale beğenildi!");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -164,7 +163,7 @@ export default {
   padding-top: 80px; /* Header'dan dolayı boşluk */
   background-color: #fcfcfc;
   min-height: 100vh;
-  font-family: 'Inter', sans-serif; /* Global font */
+  font-family: "Inter", sans-serif; /* Global font */
   color: #334155;
 }
 
@@ -209,11 +208,18 @@ export default {
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
 }
-.loading-spinner p { color: #5a6781; font-size: 1.1rem; }
+.loading-spinner p {
+  color: #5a6781;
+  font-size: 1.1rem;
+}
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message-box {
@@ -225,8 +231,15 @@ export default {
   margin: 40px auto;
   box-shadow: 0 5px 20px rgba(239, 68, 68, 0.1);
 }
-.error-message-box i { font-size: 3rem; margin-bottom: 20px; color: #ef4444; }
-.error-message-box p { font-size: 1.2rem; margin-bottom: 25px; }
+.error-message-box i {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: #ef4444;
+}
+.error-message-box p {
+  font-size: 1.2rem;
+  margin-bottom: 25px;
+}
 .error-message-box .btn-primary {
   display: inline-block;
   background: #ef4444;
@@ -241,7 +254,6 @@ export default {
   background: #dc2626;
 }
 
-
 /* --- Makale Ana Düzen --- */
 .article-main-layout {
   padding-bottom: 80px;
@@ -253,7 +265,7 @@ export default {
   background: white;
   padding: 60px;
   border-radius: 16px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 10;
 }
@@ -263,7 +275,7 @@ export default {
   line-height: 1.75;
   font-size: 1.05rem;
   color: #475569;
-  font-family: 'Merriweather', serif;
+  font-family: "Merriweather", serif;
 }
 
 .article-body-content :deep(p) {
@@ -273,7 +285,7 @@ export default {
 .article-body-content :deep(h2),
 .article-body-content :deep(h3),
 .article-body-content :deep(h4) {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: #1e293b;
   margin: 2.5rem 0 1rem;
   font-weight: 700;
@@ -295,7 +307,7 @@ export default {
   border-radius: 12px;
   margin: 2rem 0;
   display: block;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .article-body-content :deep(blockquote) {
@@ -315,22 +327,21 @@ export default {
   border-radius: 8px;
   overflow-x: auto;
   margin: 2rem 0;
-  font-family: 'Fira Code', monospace; /* Kod fontu */
+  font-family: "Fira Code", monospace; /* Kod fontu */
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .article-body-content :deep(code) {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   padding: 0.2em 0.4em;
   border-radius: 4px;
-  font-family: 'Fira Code', monospace;
+  font-family: "Fira Code", monospace;
 }
 .article-body-content :deep(pre code) {
   background: none; /* pre içindeki code için arka planı kaldır */
   padding: 0;
 }
-
 
 /* Meta Bilgileri ve Aksiyonlar Bölümü */
 .article-meta-info {
@@ -351,7 +362,8 @@ export default {
   font-size: 0.95rem;
 }
 
-.tags-section, .actions-section {
+.tags-section,
+.actions-section {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -386,7 +398,7 @@ export default {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .action-icon-btn:hover {
@@ -404,7 +416,6 @@ export default {
   color: #475569;
   font-weight: 600;
 }
-
 
 /* Responsive Düzenlemeler */
 @media (max-width: 768px) {
@@ -431,7 +442,8 @@ export default {
     align-items: flex-start;
     gap: 25px;
   }
-  .tags-section, .actions-section {
+  .tags-section,
+  .actions-section {
     width: 100%;
     justify-content: flex-start;
   }

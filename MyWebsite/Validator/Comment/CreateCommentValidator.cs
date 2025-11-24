@@ -15,8 +15,7 @@ namespace MyWebsite.Validator.Comment
             RuleFor(x => x.ArticleId)
                 .NotEmpty().WithMessage("ArticleId boş olamaz");
 
-            RuleFor(x => x.UserId)
-               .NotEmpty().WithMessage("UserId boş olamaz");
+           
         }
     }
 }

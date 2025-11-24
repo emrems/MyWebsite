@@ -12,6 +12,7 @@
   </header>
 
   <RouterView />
+   <Notification />
 </template>
 
 <style scoped>

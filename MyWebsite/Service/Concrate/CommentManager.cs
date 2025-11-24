@@ -4,8 +4,10 @@ using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.Response;
 using MyWebsite.Entities;
+using MyWebsite.Exceptions;
 using MyWebsite.Repository.Interfaces;
 using MyWebsite.Service.İnterfaces;
+using System.Security.Claims;
 
 namespace MyWebsite.Service.Concrate
 {
@@ -13,10 +15,12 @@ namespace MyWebsite.Service.Concrate
     {
         private readonly IRepositoryManager _manager;
         private readonly IValidator<createCommentDto> _createCommentValidator;
-        public CommentManager(IRepositoryManager manager, IValidator<createCommentDto> createCommentValidator)
+        private readonly IHttpContextAccessor _acsessor;
+        public CommentManager(IRepositoryManager manager, IValidator<createCommentDto> createCommentValidator, IHttpContextAccessor acsessor)
         {
             _manager = manager;
             _createCommentValidator = createCommentValidator;
+            _acsessor = acsessor;
         }
 
         public async Task<BaseResponse<object>> CreateComment(createCommentDto dto)
@@ -33,10 +37,17 @@ namespace MyWebsite.Service.Concrate
                 };
 
             }
+            var userId = _acsessor.HttpContext?
+           .User?
+           .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                throw new  UnAuthorizedException("lütfen giriş yapınız");
+            }
             var comment = new Comment
             {
                 Content=dto.Content,
-                UserId=dto.UserId,
+                UserId=int.Parse(userId),
                 ArticleId=dto.ArticleId
 
             };

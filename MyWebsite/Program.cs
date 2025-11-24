@@ -94,7 +94,7 @@ builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserValidator>();
 
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserValidator>();
 builder.Services.AddScoped<IValidator<createCommentDto>, CreateCommentValidator>();
-
+builder.Services.AddHttpContextAccessor();
 //builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 
 var app = builder.Build();
