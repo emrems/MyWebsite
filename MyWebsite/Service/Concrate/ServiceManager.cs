@@ -13,6 +13,7 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<IAuthService> _authService;
         private readonly Lazy<ICommentService> _commentService;
         private readonly Lazy<ISkilService> _skillService;
+        private readonly Lazy<IExperinceServices> _experinceService;
         private readonly IServiceProvider _serviceProvider;
 
         public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -40,6 +41,9 @@ namespace MyWebsite.Service.Concrate
                 ActivatorUtilities.CreateInstance<CommentManager>(_serviceProvider, manager));
             _skillService = new Lazy<ISkilService>(() =>
                 ActivatorUtilities.CreateInstance<SkillManager>(_serviceProvider, manager));
+
+            _experinceService = new Lazy<IExperinceServices>(() =>
+                ActivatorUtilities.CreateInstance<ExperinceManager>(_serviceProvider, manager));
         }
 
         public IUserService UserService => _userService.Value;
@@ -52,5 +56,7 @@ namespace MyWebsite.Service.Concrate
         public ICommentService CommentService => _commentService.Value;
 
         public ISkilService SkillService => _skillService.Value;
+
+        public IExperinceServices ExperinceService => _experinceService.Value;
     }
 }

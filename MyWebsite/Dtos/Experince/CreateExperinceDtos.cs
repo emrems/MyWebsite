@@ -1,8 +1,7 @@
-﻿namespace MyWebsite.Entities
+﻿namespace MyWebsite.Dtos.Experince
 {
-    public class Experience
+    public class CreateExperinceDtos
     {
-        public int Id { get; set; }
         public string Company { get; set; }
         public string Role { get; set; }
         public DateTime StartDate { get; set; } 

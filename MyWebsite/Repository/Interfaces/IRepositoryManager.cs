@@ -9,6 +9,7 @@
         IMessageRepository MessageRepository { get; }
         ICommentRepository CommentRepository { get; }
         ISkillsRepository SkillsRepository { get; }
+        IExperinceRepository ExperinceRepository { get; }
         Task SaveAsync();
     }
 }

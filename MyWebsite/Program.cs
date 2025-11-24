@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyWebsite.Dtos.CategoryDtos;
 using MyWebsite.Dtos.Comment;
+using MyWebsite.Dtos.Experince;
 using MyWebsite.Dtos.MessageDtos;
 using MyWebsite.Dtos.ProjectDtos;
 using MyWebsite.Dtos.UserDtos;
@@ -17,6 +18,7 @@ using MyWebsite.Service.Concrate;
 using MyWebsite.Service.İnterfaces;
 using MyWebsite.Validator.Categories;
 using MyWebsite.Validator.Comment;
+using MyWebsite.Validator.Experience;
 using MyWebsite.Validator.Message;
 using MyWebsite.Validator.Project;
 using MyWebsite.Validator.User;
@@ -82,6 +84,8 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentManager>();
 builder.Services.AddScoped<ISkillsRepository, SkillRepository>();
 builder.Services.AddScoped<ISkilService, SkillManager>();
+builder.Services.AddScoped<IExperinceRepository, ExperinceRepository>();
+builder.Services.AddScoped<IExperinceServices, ExperinceManager>();
 
 
 // validators
@@ -94,6 +98,8 @@ builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserValidator>();
 
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserValidator>();
 builder.Services.AddScoped<IValidator<createCommentDto>, CreateCommentValidator>();
+
+builder.Services.AddScoped<IValidator<CreateExperinceDtos>, CreateExperinceValidator>();
 builder.Services.AddHttpContextAccessor();
 //builder.Services.AddScoped<IValidator<MessageDtos>, MessageDtosValidator>();
 

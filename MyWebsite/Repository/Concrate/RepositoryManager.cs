@@ -4,6 +4,7 @@ using MyWebsite.Repository.Interfaces;
 namespace MyWebsite.Repository.Concrate
 {
     public class RepositoryManager : IRepositoryManager
+
     {
         private readonly MyWebSiteData _dbContext;
         private readonly Lazy<IUserRepository>  _userRepository;
@@ -13,7 +14,8 @@ namespace MyWebsite.Repository.Concrate
         private readonly Lazy<IMessageRepository> _messageRepository;
         private readonly Lazy<ICommentRepository> _commentRepository;
         private readonly Lazy<ISkillsRepository> _skillsRepository;
-        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository)
+        private readonly Lazy<IExperinceRepository> _experinceRepository;
+        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository,IExperinceRepository experinceRepository)
         {
             _dbContext = dbContext;
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(dbContext));
@@ -23,6 +25,7 @@ namespace MyWebsite.Repository.Concrate
             _messageRepository = new Lazy<IMessageRepository>(() => new MessageRepository(dbContext));
             _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(dbContext));
             _skillsRepository = new Lazy<ISkillsRepository>(() => new SkillRepository(dbContext));
+            _experinceRepository = new Lazy<IExperinceRepository>(() => new ExperinceRepository(dbContext)); ;
         }
 
         public IUserRepository UserRepository => _userRepository.Value;
@@ -38,6 +41,8 @@ namespace MyWebsite.Repository.Concrate
         public ICommentRepository CommentRepository => _commentRepository.Value;
 
         public ISkillsRepository SkillsRepository => _skillsRepository.Value;
+
+        public IExperinceRepository ExperinceRepository => _experinceRepository.Value;
 
         public async Task SaveAsync()
         {

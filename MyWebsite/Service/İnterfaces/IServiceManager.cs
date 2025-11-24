@@ -10,6 +10,7 @@
         IAuthService AuthService { get; }
         ICommentService CommentService { get; }
         ISkilService SkillService { get; }
+        IExperinceServices ExperinceService { get; }
 
 
     }
