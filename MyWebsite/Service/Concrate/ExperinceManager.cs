@@ -43,7 +43,7 @@ namespace MyWebsite.Service.Concrate
                 Description = dto.Description
             };
             await _manager.ExperinceRepository.AddAsync(experince);
-           
+            await _manager.SaveAsync();
             return new BaseResponse<object>
             {
                 IsSuccess = true,

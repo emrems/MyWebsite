@@ -1,11 +1,13 @@
 import { createStore } from 'vuex';
 import projects from './modules/projects';
 import articles from './modules/articles';
+import experience from './modules/experience';
 
 
 export default createStore({
   modules: {
-    projects, // projects modülünü ekleyin
-    articles
+    projects, 
+    articles,
+    experience
   }
 });
