@@ -7,7 +7,7 @@ namespace MyWebsite.Service.İnterfaces
     public interface IArticleLikeService
     {
         //Task<int> getArticLikeCountByArticleİd(int articleİd);
-        Task<BaseResponse<object>> createArticleLike(CreateArticleLikeDto dto);
+       // Task<BaseResponse<object>> createArticleLike(CreateArticleLikeDto dto);
         Task<BaseResponse<ReadArticleDtoForLike>> ToggleLikeAsync(CreateArticleLikeDto dto);
     }
 }

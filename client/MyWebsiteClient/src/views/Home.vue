@@ -1,15 +1,15 @@
 <template>
   <div class="home-page">
-    
     <section class="hero-section">
       <div class="hero-background"></div>
       <div class="hero-content">
         <h1 class="hero-title">
-          Merhaba, ben <span class="hero-highlight">Emre</span>.<br>
+          Merhaba, ben <span class="hero-highlight">Emre</span>.<br />
           Dijital dünyayı kodluyorum.
         </h1>
         <p class="hero-text">
-          Vue.js, ASP.NET Core ve MSSQL odaklı web çözümleri geliştiren bir yazılım mühendisiyim. İhtiyaca yönelik, ölçeklenebilir ve kullanıcı dostu uygulamalar tasarlıyorum.
+          Vue.js, ASP.NET Core ve MSSQL odaklı web çözümleri geliştiren bir yazılım mühendisiyim.
+          İhtiyaca yönelik, ölçeklenebilir ve kullanıcı dostu uygulamalar tasarlıyorum.
         </p>
         <div class="hero-buttons">
           <router-link to="/project" class="btn btn-primary">
@@ -20,10 +20,6 @@
             <span>İletişim</span>
             <span class="btn-arrow">→</span>
           </router-link>
-          <a href="/path/to/your/cv.pdf" download class="btn btn-secondary">
-            <span>CV'mi İndir</span>
-            <span class="btn-icon">↓</span>
-          </a>
         </div>
       </div>
     </section>
@@ -33,10 +29,18 @@
         <h2 class="section-heading">Ben Kimim?</h2>
         <div class="about-me-content">
           <p>
-            Sakarya Uygulamalı Bilimler Üniversitesi Bilgisayar Mühendisliği bölümünden mezun oldum. Yazılıma olan tutkum, beni sürekli yeni teknolojiler öğrenmeye ve en iyi uygulamaları benimsemeye yönlendiriyor.
+            Sakarya Uygulamalı Bilimler Üniversitesi Bilgisayar Mühendisliği bölümünden mezun oldum.
+            Yazılıma olan tutkum, beni sürekli yeni teknolojiler öğrenmeye ve en iyi uygulamaları
+            benimsemeye yönlendiriyor.
           </p>
           <p>
-            <span class="text-highlight">ASP.NET Core</span> ile güçlü ve güvenli backend servisleri oluştururken, <span class="text-highlight">Vue.js</span> ile dinamik ve modern kullanıcı arayüzleri geliştiriyorum. Veri yönetiminde <span class="text-highlight">MSSQL</span> kullanıyor, projelerimde <span class="text-highlight">REST API</span> ve <span class="text-highlight">Clean Architecture</span> prensiplerine bağlı kalıyorum. Benim için yazılım, sadece kod yazmaktan çok, problem çözme sanatıdır.
+            <span class="text-highlight">ASP.NET Core</span> ile güçlü ve güvenli backend servisleri
+            oluştururken, <span class="text-highlight">Vue.js</span> ile dinamik ve modern kullanıcı
+            arayüzleri geliştiriyorum. Veri yönetiminde
+            <span class="text-highlight">MSSQL</span> kullanıyor, projelerimde
+            <span class="text-highlight">REST API</span> ve
+            <span class="text-highlight">Clean Architecture</span> prensiplerine bağlı kalıyorum.
+            Benim için yazılım, sadece kod yazmaktan çok, problem çözme sanatıdır.
           </p>
         </div>
       </div>
@@ -60,22 +64,33 @@
           <div class="service-card">
             <div class="service-icon">🌐</div>
             <h3 class="service-title">Web Geliştirme</h3>
-            <p class="service-description">İhtiyaca özel, modern ve duyarlı web siteleri ve uygulamaları tasarlayıp geliştiriyorum.</p>
+            <p class="service-description">
+              İhtiyaca özel, modern ve duyarlı web siteleri ve uygulamaları tasarlayıp
+              geliştiriyorum.
+            </p>
           </div>
           <div class="service-card">
             <div class="service-icon">⚡</div>
             <h3 class="service-title">API Geliştirme</h3>
-            <p class="service-description">Güvenli ve dokümante edilmiş RESTful API'ler oluşturarak, uygulamalarınızın altyapısını kuruyorum.</p>
+            <p class="service-description">
+              Güvenli ve dokümante edilmiş RESTful API'ler oluşturarak, uygulamalarınızın
+              altyapısını kuruyorum.
+            </p>
           </div>
           <div class="service-card">
             <div class="service-icon">🗄️</div>
             <h3 class="service-title">Veritabanı Yönetimi</h3>
-            <p class="service-description">Uygulamalar için veritabanı şeması tasarlıyor ve MSSQL üzerinde performanslı çözümler üretiyorum.</p>
+            <p class="service-description">
+              Uygulamalar için veritabanı şeması tasarlıyor ve MSSQL üzerinde performanslı çözümler
+              üretiyorum.
+            </p>
           </div>
           <div class="service-card">
             <div class="service-icon">💡</div>
             <h3 class="service-title">Teknik Danışmanlık</h3>
-            <p class="service-description">Proje planlama, mimari tasarım ve teknoloji seçimi gibi konularda yol gösteriyorum.</p>
+            <p class="service-description">
+              Proje planlama, mimari tasarım ve teknoloji seçimi gibi konularda yol gösteriyorum.
+            </p>
           </div>
         </div>
       </div>
@@ -112,21 +127,21 @@
 </template>
 
 <script>
-import RecentProjects from '@/components/Home/RecentProjects.vue';
-import AllExperience from '@/components/Experience/allExperience.vue'; 
+import RecentProjects from "@/components/Home/RecentProjects.vue";
+import AllExperience from "@/components/Experience/allExperience.vue";
 
 export default {
-  name: 'HomePage',
+  name: "HomePage",
   components: {
     RecentProjects,
-    AllExperience
-  }
+    AllExperience,
+  },
 };
 </script>
 
 <style scoped>
 .home-page {
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #1a1a2e;
   line-height: 1.7;
 }
@@ -149,15 +164,19 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+  background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   animation: backgroundMove 20s ease-in-out infinite;
 }
 
 @keyframes backgroundMove {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.1) rotate(5deg); }
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
 }
 
 .hero-content {
@@ -198,7 +217,7 @@ export default {
 }
 
 .hero-highlight::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -5px;
   left: 0;
@@ -211,8 +230,12 @@ export default {
 }
 
 @keyframes highlightExpand {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .hero-text {
@@ -246,7 +269,7 @@ export default {
 }
 
 .btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -291,17 +314,8 @@ export default {
 }
 
 .btn-arrow,
-.btn-icon {
-  font-size: 1.3rem;
-  transition: transform 0.3s ease;
-}
-
 .btn:hover .btn-arrow {
   transform: translateX(5px);
-}
-
-.btn:hover .btn-icon {
-  transform: translateY(3px);
 }
 
 /* Sections */
@@ -325,7 +339,7 @@ export default {
 }
 
 .section-heading::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -15px;
   left: 50%;
@@ -398,7 +412,7 @@ export default {
 }
 
 .service-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -475,7 +489,7 @@ export default {
 }
 
 .statistic-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -523,7 +537,9 @@ export default {
 }
 
 @keyframes barExpand {
-  to { width: 60%; }
+  to {
+    width: 60%;
+  }
 }
 
 .statistic-item:hover .statistic-bar {
@@ -531,8 +547,13 @@ export default {
 }
 
 @keyframes barPulse {
-  0%, 100% { width: 60%; }
-  50% { width: 80%; }
+  0%,
+  100% {
+    width: 60%;
+  }
+  50% {
+    width: 80%;
+  }
 }
 
 /* Responsive */
@@ -540,15 +561,15 @@ export default {
   .hero-title {
     font-size: 3rem;
   }
-  
+
   .hero-text {
     font-size: 1.1rem;
   }
-  
+
   .section-heading {
     font-size: 2.5rem;
   }
-  
+
   .section {
     padding: 4rem 1.5rem;
   }
@@ -558,29 +579,29 @@ export default {
   .hero-title {
     font-size: 2.5rem;
   }
-  
+
   .hero-text {
     font-size: 1rem;
   }
-  
+
   .hero-buttons {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .section-heading {
     font-size: 2rem;
   }
-  
+
   .about-me-content {
     font-size: 1.05rem;
   }
-  
+
   .services-grid,
   .statistics-grid {
     grid-template-columns: 1fr;
