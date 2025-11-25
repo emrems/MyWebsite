@@ -20,7 +20,8 @@ namespace MyWebsite.Controllers
         [HttpPost("createArticleLike")]
         public async Task<IActionResult> createArticliLike(CreateArticleLikeDto dto)
         {
-            var result = await _manager.ArticleLikeService.createArticleLike(dto);
+         
+            var result = await _manager.ArticleLikeService.ToggleLikeAsync(dto);
             return CreateResponse(result);
         }
 

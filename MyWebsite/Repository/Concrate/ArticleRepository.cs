@@ -30,7 +30,9 @@ namespace MyWebsite.Repository.Concrate
 
         public async Task<Article?> GetArticleBySlugAsync(string slug)
         {
-            var article = await   _DbContext.Set<Article>().FirstOrDefaultAsync(a => a.Slug == slug);
+            var article = await   _DbContext.Set<Article>()
+                .Include(x=>x.Likes)
+                .FirstOrDefaultAsync(a => a.Slug == slug);
             return article;
         }
 

@@ -11,12 +11,10 @@ namespace MyWebsite.Repository.Concrate
         {
         }
 
-        public async Task<bool> GetLikeUserIdAndArticleId(int userId, int articleId)
+        public async Task<ArticleLike> GetLikeUserIdAndArticleId(int userId, int articleId)
         {
             var result = await _DbContext.ArticleLikes.FirstOrDefaultAsync(x => x.UserId == userId && x.ArticleId == articleId);
-            if (result == null)
-                return false;
-            return true;
+            return result;
             
         }
     }

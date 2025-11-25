@@ -6,6 +6,6 @@ namespace MyWebsite.Repository.Interfaces
     public interface IArticleLikeRepository : IRepositoryBase<ArticleLike>
     {
 
-        Task<bool> GetLikeUserIdAndArticleId(int userId, int articleId);
+        Task<ArticleLike> GetLikeUserIdAndArticleId(int userId, int articleId);
     }
 }

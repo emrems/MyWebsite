@@ -102,7 +102,9 @@ namespace MyWebsite.Service.Concrate
                 Content = a.Content,
                 Slug = a.Slug,
                 CreatedDate = a.CreatedDate,
-                ArticleLikeCount=a.Likes.Count
+                ArticleLikeCount=a.Likes.Count,
+                IsLiked=a.IsLiked
+                
                 
             }).AsQueryable();
             return new BaseResponse<IQueryable<ReadArticleDtos>>
@@ -130,7 +132,8 @@ namespace MyWebsite.Service.Concrate
                 Content = article.Content,
                 Slug = article.Slug,
                 CreatedDate = article.CreatedDate,
-                ArticleLikeCount= article.Likes.Count
+                ArticleLikeCount= article.Likes.Count,
+                IsLiked=article.IsLiked
 
             };
             return new BaseResponse<ReadArticleDtos>
@@ -155,7 +158,9 @@ namespace MyWebsite.Service.Concrate
                 Title = article.Title,
                 Content = article.Content,
                 Slug = article.Slug,
-                CreatedDate = article.CreatedDate
+                CreatedDate = article.CreatedDate,
+                ArticleLikeCount=article.Likes.Count,
+                IsLiked=article.IsLiked
             };
             return new BaseResponse<ReadArticleDtos>
             {

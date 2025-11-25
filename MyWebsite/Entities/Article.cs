@@ -6,6 +6,7 @@
         public string Title { get; set; } = "";       // Yazı başlığı
         public string Content { get; set; } = "";     // Yazı içeriği (Markdown destekli olabilir)
         public string Slug { get; set; } = "";        // URL dostu başlık
+        public bool IsLiked { get; set; } = false;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         // İlişkiler

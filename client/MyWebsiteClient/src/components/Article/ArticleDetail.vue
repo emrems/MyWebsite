@@ -1,26 +1,31 @@
 <template>
   <div class="article-detail-page-wrapper">
+    <!-- Geri Dön Butonu -->
     <button class="back-to-articles-btn" @click="$router.push('/articles')">
       <i class="fas fa-chevron-left"></i> Tüm Makaleler
     </button>
 
+    <!-- Yükleniyor Durumu -->
     <div v-if="loading" class="status-section loading-spinner">
       <div class="spinner"></div>
       <p>Makale yükleniyor...</p>
     </div>
 
+    <!-- Hata Durumu -->
     <div v-else-if="error" class="status-section error-message-box">
       <i class="fas fa-exclamation-triangle"></i>
       <p>{{ error }}</p>
       <RouterLink to="/articles" class="btn btn-primary">Blog Sayfasına Geri Dön</RouterLink>
     </div>
 
+    <!-- Makale İçeriği -->
     <article v-else-if="article" class="article-main-layout">
       <ArticleHero :article="article" :readingTime="calculateReadingTime(article.content)" />
 
       <div class="article-content-wrapper">
         <div class="article-body-content" v-html="article.content"></div>
 
+        <!-- Meta Bilgiler ve Aksiyonlar -->
         <div class="article-meta-info">
           <div class="tags-section">
             <span class="meta-label">Etiketler:</span>
@@ -35,15 +40,17 @@
             </button>
             <button class="action-icon-btn" @click="likeArticle">
               <i class="fas fa-heart"></i>
-              <span>{{ article.likes || 0 }}</span>
+              <span>{{ article.articleLikeCount || 0 }}</span>
             </button>
           </div>
         </div>
 
+        <!-- Navigasyon -->
         <ArticleNavigation :previousArticle="previousArticle" :nextArticle="nextArticle" />
       </div>
     </article>
 
+    <!-- Share Modal -->
     <ShareModal
       :isVisible="isShareModalVisible"
       :shareText="article ? `Bu makaleyi oku: ${article.title}` : 'İlginç bir makale!'"
@@ -62,12 +69,7 @@ import ShareModal from "@/components/ShareModal.vue";
 
 export default {
   name: "ArticleDetail",
-  components: {
-    ArticleHero,
-    ArticleNavigation,
-    ShareModal,
-  },
-
+  components: { ArticleHero, ArticleNavigation, ShareModal },
   data() {
     return {
       article: null,
@@ -78,32 +80,26 @@ export default {
       isShareModalVisible: false,
     };
   },
-
   async created() {
     await this.fetchArticleBySlug(this.$route.params.slug);
   },
-
   mounted() {
-    // Sayfa yüklendiğinde en üste kaydır
     window.scrollTo({ top: 0, behavior: "smooth" });
   },
-
   watch: {
     "$route.params.slug": {
-      immediate: true, // Component ilk yüklendiğinde de çalışır
+      immediate: true,
       async handler(newSlug) {
         await this.fetchArticleBySlug(newSlug);
-        window.scrollTo({ top: 0, behavior: "smooth" }); // Yeni makaleye geçişte üste kaydır
+        window.scrollTo({ top: 0, behavior: "smooth" });
       },
     },
   },
-
   methods: {
     onCommentSubmitted(commentData) {
       console.log("Yorum gönderildi:", commentData);
-      // İsterseniz burada yorum listesini güncelleyebilirsiniz
-      // veya kullanıcıya feedback verebilirsiniz
     },
+
     async fetchArticleBySlug(slug) {
       this.loading = true;
       this.error = null;
@@ -111,16 +107,13 @@ export default {
       this.previousArticle = null;
       this.nextArticle = null;
 
-      const result = await ApiService.fetch(`article/slug/${slug}`); // Endpoint'inizi kontrol edin
-
+      const result = await ApiService.fetch(`article/slug/${slug}`);
       if (result.success) {
-        console.log(result.data);
         this.article = result.data;
-        this.simulateNavigationArticles(); // Simülasyon
+        this.simulateNavigationArticles();
       } else {
         this.error = result.message || "Makale bulunamadı veya yüklenirken bir hata oluştu.";
       }
-
       this.loading = false;
     },
 
@@ -131,24 +124,46 @@ export default {
       return Math.ceil(textLength / wordsPerMinute);
     },
 
-    // Geçici navigasyon makale simülasyonu (API'den gelene kadar)
     simulateNavigationArticles() {
-      this.previousArticle = {
-        slug: "onceki-makale-ornek",
-        title: "Önceki Makale Başlığı Buraya",
-      };
-      this.nextArticle = {
-        slug: "sonraki-makale-ornek",
-        title: "Sonraki Makale Başlığı Buraya",
-      };
+      this.previousArticle = { slug: "onceki-makale-ornek", title: "Önceki Makale Başlığı" };
+      this.nextArticle = { slug: "sonraki-makale-ornek", title: "Sonraki Makale Başlığı" };
     },
 
-    likeArticle() {
-      // Bu kısım API ile etkileşime girebilir (beğeni gönderme vb.)
-      // Şimdilik sadece beğeniyi artırma simülasyonu yapalım
-      if (this.article) {
-        this.article.likes = (this.article.likes || 0) + 1;
-        // console.log("Makale beğenildi!");
+    async likeArticle() {
+      try {
+        const result = await ApiService.create("ArticleLike/createArticleLike", {
+          articleId: this.article.id,
+        });
+
+        if (result.success) {
+          const data = result.data;
+          console.log(result); 
+
+          // DB’den gelen değerleri kullanma
+          this.article.articleLikeCount = data.likes || 0;
+          this.article.isLiked = data.isliked || false;
+
+          this.$notify.show({
+            type: "success",
+            title: "Başarılı",
+            message: result.message,
+            duration: 3000,
+          });
+        } else {
+          this.$notify.show({
+            type: "error",
+            title: "Hata",
+            message: result.message || "Beğeni işlemi başarısız.",
+            duration: 4000,
+          });
+        }
+      } catch (error) {
+        this.$notify.show({
+          type: "error",
+          title: "Hata",
+          message: "Bir hata oluştu. Lütfen tekrar deneyin.",
+          duration: 4000,
+        });
       }
     },
   },
@@ -156,14 +171,11 @@ export default {
 </script>
 
 <style scoped>
-/*
-  Genel Kapsayıcı ve Durum Mesajları Stillleri
-*/
 .article-detail-page-wrapper {
-  padding-top: 80px; /* Header'dan dolayı boşluk */
+  padding-top: 80px;
   background-color: #fcfcfc;
   min-height: 100vh;
-  font-family: "Inter", sans-serif; /* Global font */
+  font-family: "Inter", sans-serif;
   color: #334155;
 }
 
@@ -179,16 +191,14 @@ export default {
   cursor: pointer;
   padding: 20px 0;
   margin: 0 auto;
-  max-width: 860px; /* İçerik genişliği ile hizala */
+  max-width: 860px;
   width: 100%;
   transition: color 0.2s ease;
 }
-
 .back-to-articles-btn:hover {
   color: #3b82f6;
 }
 
-/* Durum Mesajları (Yükleniyor, Hata) */
 .status-section {
   display: flex;
   flex-direction: column;
@@ -198,7 +208,6 @@ export default {
   text-align: center;
   padding: 40px;
 }
-
 .loading-spinner .spinner {
   width: 50px;
   height: 50px;
@@ -212,7 +221,6 @@ export default {
   color: #5a6781;
   font-size: 1.1rem;
 }
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -234,34 +242,31 @@ export default {
 .error-message-box i {
   font-size: 3rem;
   margin-bottom: 20px;
-  color: #ef4444;
 }
 .error-message-box p {
   font-size: 1.2rem;
   margin-bottom: 25px;
 }
 .error-message-box .btn-primary {
-  display: inline-block;
   background: #ef4444;
   color: white;
   padding: 12px 25px;
   border-radius: 8px;
-  text-decoration: none;
   font-weight: 600;
+  text-decoration: none;
   transition: background 0.3s ease;
 }
 .error-message-box .btn-primary:hover {
   background: #dc2626;
 }
 
-/* --- Makale Ana Düzen --- */
 .article-main-layout {
   padding-bottom: 80px;
 }
 
 .article-content-wrapper {
-  max-width: 800px; /* Okunabilir içerik genişliği */
-  margin: -80px auto 0 auto; /* Kahraman görselinin üzerine bindir */
+  max-width: 800px;
+  margin: -80px auto 0 auto;
   background: white;
   padding: 60px;
   border-radius: 16px;
@@ -270,18 +275,15 @@ export default {
   z-index: 10;
 }
 
-/* Makale İçeriği - v-html ile gelen dinamik HTML için stiller */
 .article-body-content {
   line-height: 1.75;
   font-size: 1.05rem;
   color: #475569;
   font-family: "Merriweather", serif;
 }
-
 .article-body-content :deep(p) {
   margin-bottom: 1.5rem;
 }
-
 .article-body-content :deep(h2),
 .article-body-content :deep(h3),
 .article-body-content :deep(h4) {
@@ -290,17 +292,14 @@ export default {
   margin: 2.5rem 0 1rem;
   font-weight: 700;
 }
-
 .article-body-content :deep(h2) {
   font-size: 2rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
 }
-
 .article-body-content :deep(h3) {
   font-size: 1.6rem;
 }
-
 .article-body-content :deep(img) {
   max-width: 100%;
   height: auto;
@@ -309,7 +308,6 @@ export default {
   display: block;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
-
 .article-body-content :deep(blockquote) {
   border-left: 5px solid #3b82f6;
   padding: 1.5rem 2rem;
@@ -319,19 +317,17 @@ export default {
   font-style: italic;
   border-radius: 0 8px 8px 0;
 }
-
 .article-body-content :deep(pre) {
-  background: #2d3748; /* Koyu arka plan */
+  background: #2d3748;
   color: #f8fafc;
   padding: 1.5rem;
   border-radius: 8px;
   overflow-x: auto;
   margin: 2rem 0;
-  font-family: "Fira Code", monospace; /* Kod fontu */
+  font-family: "Fira Code", monospace;
   font-size: 0.95rem;
   line-height: 1.5;
 }
-
 .article-body-content :deep(code) {
   background: rgba(0, 0, 0, 0.05);
   padding: 0.2em 0.4em;
@@ -339,11 +335,10 @@ export default {
   font-family: "Fira Code", monospace;
 }
 .article-body-content :deep(pre code) {
-  background: none; /* pre içindeki code için arka planı kaldır */
+  background: none;
   padding: 0;
 }
 
-/* Meta Bilgileri ve Aksiyonlar Bölümü */
 .article-meta-info {
   display: flex;
   justify-content: space-between;
@@ -352,7 +347,7 @@ export default {
   padding: 30px 0;
   border-top: 1px solid #e2e8f0;
   margin-top: 40px;
-  gap: 20px; /* Küçük ekranlarda gap */
+  gap: 20px;
 }
 
 .meta-label {
@@ -361,7 +356,6 @@ export default {
   margin-right: 10px;
   font-size: 0.95rem;
 }
-
 .tags-section,
 .actions-section {
   display: flex;
@@ -369,7 +363,6 @@ export default {
   flex-wrap: wrap;
   gap: 10px;
 }
-
 .tag-pill {
   background: #e2e8f0;
   color: #475569;
@@ -380,7 +373,6 @@ export default {
   transition: background 0.2s ease;
   cursor: pointer;
 }
-
 .tag-pill:hover {
   background: #cbd5e1;
 }
@@ -400,15 +392,13 @@ export default {
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-
 .action-icon-btn:hover {
   background: #e2e8f0;
   color: #3b82f6;
   transform: translateY(-2px);
 }
-
 .action-icon-btn .fa-heart {
-  color: #ef4444; /* Beğeni ikonu özel renk */
+  color: #ef4444;
 }
 .action-icon-btn span {
   font-size: 0.85rem;
@@ -417,7 +407,6 @@ export default {
   font-weight: 600;
 }
 
-/* Responsive Düzenlemeler */
 @media (max-width: 768px) {
   .article-content-wrapper {
     padding: 30px;
