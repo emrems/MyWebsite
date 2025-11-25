@@ -10,6 +10,7 @@
         ICommentRepository CommentRepository { get; }
         ISkillsRepository SkillsRepository { get; }
         IExperinceRepository ExperinceRepository { get; }
+        IArticleLikeRepository ArticleLikeRepository { get; }
         Task SaveAsync();
     }
 }

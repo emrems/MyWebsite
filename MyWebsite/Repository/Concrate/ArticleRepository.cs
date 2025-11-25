@@ -11,10 +11,29 @@ namespace MyWebsite.Repository.Concrate
         {
         }
 
+        public async Task<IEnumerable<Article>> GetAllArticlesAsync()
+        {
+            var articles = await _DbContext.Articles
+                     .Include(a => a.Likes)  
+                     .ToListAsync();
+            return articles;
+        }
+
+        public async Task<Article> GetArticleByIdAsync(int id)
+        {
+            return await _DbContext.Articles
+                .Include(x => x.Likes)
+                .Where(a=>a.Id==id)
+                .FirstOrDefaultAsync();
+                
+        }
+
         public async Task<Article?> GetArticleBySlugAsync(string slug)
         {
             var article = await   _DbContext.Set<Article>().FirstOrDefaultAsync(a => a.Slug == slug);
             return article;
         }
+
+        
     }
 }

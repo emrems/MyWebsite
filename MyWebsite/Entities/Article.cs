@@ -14,6 +14,8 @@
         public int? CategoryId { get; set; }
         public Category? Category { get; set; }
 
+        public ICollection<ArticleLike> Likes { get; set; } = new List<ArticleLike>();
+
     }
 
 }

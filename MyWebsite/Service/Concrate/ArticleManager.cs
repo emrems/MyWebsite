@@ -90,8 +90,8 @@ namespace MyWebsite.Service.Concrate
 
         public async Task<BaseResponse<IQueryable<ReadArticleDtos>>> GetAllArticlesAsync()
         {
-            var articles = await _repository.ArticleRepository.FindAll().ToListAsync();
-            if(articles == null || articles.Count == 0)
+            var articles = await _repository.ArticleRepository.GetAllArticlesAsync();
+            if(articles == null )
             {
                 throw new NotFoundException("Hiçbir article bulunamadı");
             }
@@ -101,7 +101,9 @@ namespace MyWebsite.Service.Concrate
                 Title = a.Title,
                 Content = a.Content,
                 Slug = a.Slug,
-                CreatedDate = a.CreatedDate
+                CreatedDate = a.CreatedDate,
+                ArticleLikeCount=a.Likes.Count
+                
             }).AsQueryable();
             return new BaseResponse<IQueryable<ReadArticleDtos>>
             {
@@ -115,18 +117,21 @@ namespace MyWebsite.Service.Concrate
 
         public async Task<BaseResponse<ReadArticleDtos>> GetArticleByIdAsync(int id)
         {
-            var article = await _repository.ArticleRepository.GetByIdAsync(id);
+            var article = await _repository.ArticleRepository.GetArticleByIdAsync(id);
             if (article == null)
             {
                 throw new NotFoundException("Article bulunamdı");
             }
+           
             var articleDto = new ReadArticleDtos
             {
                 Id = article.Id,
                 Title = article.Title,
                 Content = article.Content,
                 Slug = article.Slug,
-                CreatedDate = article.CreatedDate
+                CreatedDate = article.CreatedDate,
+                ArticleLikeCount= article.Likes.Count
+
             };
             return new BaseResponse<ReadArticleDtos>
             {

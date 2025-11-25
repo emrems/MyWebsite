@@ -11,6 +11,7 @@
         ICommentService CommentService { get; }
         ISkilService SkillService { get; }
         IExperinceServices ExperinceService { get; }
+        IArticleLikeService ArticleLikeService { get; }
 
 
     }

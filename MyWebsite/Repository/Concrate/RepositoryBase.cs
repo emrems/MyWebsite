@@ -1,5 +1,7 @@
-﻿using MyWebsite.Repository.config;
+﻿using Microsoft.EntityFrameworkCore;
+using MyWebsite.Repository.config;
 using MyWebsite.Repository.Interfaces;
+using System.Linq.Expressions;
 
 namespace MyWebsite.Repository.Concrate
 {
@@ -42,5 +44,7 @@ namespace MyWebsite.Repository.Concrate
             _DbContext.Set<TEntity>().Update(entity);
             return Task.CompletedTask;
         }
+       
+
     }
 }

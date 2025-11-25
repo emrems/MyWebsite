@@ -15,7 +15,8 @@ namespace MyWebsite.Repository.Concrate
         private readonly Lazy<ICommentRepository> _commentRepository;
         private readonly Lazy<ISkillsRepository> _skillsRepository;
         private readonly Lazy<IExperinceRepository> _experinceRepository;
-        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository,IExperinceRepository experinceRepository)
+        private readonly Lazy<IArticleLikeRepository> _articleLikeRepository;
+        public RepositoryManager(MyWebSiteData dbContext, IUserRepository userRepository, ICommentRepository commentRepository, IExperinceRepository experinceRepository, IArticleLikeRepository articleLikeRepository)
         {
             _dbContext = dbContext;
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(dbContext));
@@ -26,6 +27,7 @@ namespace MyWebsite.Repository.Concrate
             _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(dbContext));
             _skillsRepository = new Lazy<ISkillsRepository>(() => new SkillRepository(dbContext));
             _experinceRepository = new Lazy<IExperinceRepository>(() => new ExperinceRepository(dbContext)); ;
+            _articleLikeRepository = new Lazy<IArticleLikeRepository>(() => new ArticleLikeRepository(dbContext)); ;
         }
 
         public IUserRepository UserRepository => _userRepository.Value;
@@ -43,6 +45,8 @@ namespace MyWebsite.Repository.Concrate
         public ISkillsRepository SkillsRepository => _skillsRepository.Value;
 
         public IExperinceRepository ExperinceRepository => _experinceRepository.Value;
+
+        public IArticleLikeRepository ArticleLikeRepository => _articleLikeRepository.Value;
 
         public async Task SaveAsync()
         {

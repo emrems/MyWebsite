@@ -86,6 +86,8 @@ builder.Services.AddScoped<ISkillsRepository, SkillRepository>();
 builder.Services.AddScoped<ISkilService, SkillManager>();
 builder.Services.AddScoped<IExperinceRepository, ExperinceRepository>();
 builder.Services.AddScoped<IExperinceServices, ExperinceManager>();
+builder.Services.AddScoped<IArticleLikeRepository, ArticleLikeRepository>();
+builder.Services.AddScoped<IArticleLikeService, ArticleLikeManager>();
 
 
 // validators
