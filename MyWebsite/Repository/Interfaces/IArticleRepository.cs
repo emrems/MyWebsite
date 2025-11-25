@@ -9,5 +9,6 @@ namespace MyWebsite.Repository.Interfaces
         Task<Article?> GetArticleBySlugAsync(string slug);
         Task<IEnumerable<Article>> GetAllArticlesAsync();
         Task<Article> GetArticleByIdAsync(int id);
+        
     }
 }

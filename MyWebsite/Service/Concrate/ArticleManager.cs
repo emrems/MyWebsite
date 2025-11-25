@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyWebsite.Dtos.ArticleDtos;
+using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.Response;
 using MyWebsite.Entities;
 using MyWebsite.Exceptions;
@@ -152,6 +153,7 @@ namespace MyWebsite.Service.Concrate
             {
                 throw new NotFoundException("Article bulunamdı");
             }
+          
             var articleDto = new ReadArticleDtos
             {
                 Id = article.Id,
@@ -159,8 +161,16 @@ namespace MyWebsite.Service.Concrate
                 Content = article.Content,
                 Slug = article.Slug,
                 CreatedDate = article.CreatedDate,
-                ArticleLikeCount=article.Likes.Count,
-                IsLiked=article.IsLiked
+                ArticleLikeCount = article.Likes.Count,
+                IsLiked = article.IsLiked,
+                Comments = article.Comments.Select(x => new ReadCommentDto
+                {
+                    ArticleTitle = x.Article.Title,
+                    CreatedDate = x.CreatedDate,
+                    Content = x.Content,
+                    Id = x.Id,
+                    UserName = x.User != null ? x.User.Username : "Anonim"
+                }).ToList()
             };
             return new BaseResponse<ReadArticleDtos>
             {

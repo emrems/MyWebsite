@@ -65,7 +65,7 @@
             :project="project"
           />
         </transition-group>
-
+ 
         <div v-if="filteredProjects.length === 0" class="empty-state">
           📁 Kriterlere uygun proje bulunamadı.
         </div>

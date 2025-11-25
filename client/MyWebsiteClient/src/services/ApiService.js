@@ -5,7 +5,7 @@ const API_URL = "https://localhost:7239/api";
 
 // ⭐ STATIC TOKEN (istediğin gibi)
 const TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZW1yZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3NjQwNzAyMDQsImlzcyI6Ik15V2Vic2l0ZSIsImF1ZCI6Ik15V2Vic2l0ZVVzZXJzIn0.znfywJzqmepi0Ib3a5yC-2s41pfeNsepdJfO6vqsZsw";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoia2FkaXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiZXhwIjoxNzY0MTA5NTM2LCJpc3MiOiJNeVdlYnNpdGUiLCJhdWQiOiJNeVdlYnNpdGVVc2VycyJ9.b2hVRG8lFuginGV_eQqvwFKsORe1CWDMdrzqX_7xyo4";
 
 // ⭐ TÜM İSTEKLERE OTOMATİK TOKEN + JSON FORMATINI EKLE
 axios.defaults.headers.common["Authorization"] = `Bearer ${TOKEN}`;
@@ -32,9 +32,6 @@ const ApiService = {
     return axios.delete(`${API_URL}/${resource}`);
   },
 
-  // ------------------------------------
-  // FETCH — STANDART RESPONSE FORMATLI
-  // ------------------------------------
   async fetch(resource) {
     try {
       const response = await axios.get(`${API_URL}/${resource}`);
@@ -55,9 +52,6 @@ const ApiService = {
     }
   },
 
-  // ------------------------------------
-  // CREATE
-  // ------------------------------------
   async create(resource, data) {
     try {
       const response = await axios.post(`${API_URL}/${resource}`, data);
@@ -78,9 +72,6 @@ const ApiService = {
     }
   },
 
-  // ------------------------------------
-  // UPDATE
-  // ------------------------------------
   async update(resource, data) {
     try {
       const response = await axios.put(`${API_URL}/${resource}`, data);
@@ -101,9 +92,6 @@ const ApiService = {
     }
   },
 
-  // ------------------------------------
-  // DELETE / REMOVE
-  // ------------------------------------
   async remove(resource) {
     try {
       const response = await axios.delete(`${API_URL}/${resource}`);
@@ -124,9 +112,6 @@ const ApiService = {
     }
   },
 
-  // ------------------------------------
-  // ERROR HANDLING
-  // ------------------------------------
   getErrorMessage(error) {
     if (error.response) {
       const status = error.response.status;

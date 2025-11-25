@@ -1,36 +1,40 @@
 <template>
   <div class="article-detail-page-wrapper">
-    <!-- Geri Dön Butonu -->
+    
+    <!-- Geri Dön -->
     <button class="back-to-articles-btn" @click="$router.push('/articles')">
       <i class="fas fa-chevron-left"></i> Tüm Makaleler
     </button>
 
-    <!-- Yükleniyor Durumu -->
-    <div v-if="loading" class="status-section loading-spinner">
-      <div class="spinner"></div>
-      <p>Makale yükleniyor...</p>
-    </div>
+    <!-- Loading -->
+    <LoadingSpinner
+      v-if="isLoading"
+      text="Makale yükleniyor..."
+    />
 
-    <!-- Hata Durumu -->
-    <div v-else-if="error" class="status-section error-message-box">
-      <i class="fas fa-exclamation-triangle"></i>
-      <p>{{ error }}</p>
-      <RouterLink to="/articles" class="btn btn-primary">Blog Sayfasına Geri Dön</RouterLink>
-    </div>
+    <!-- Error -->
+    <ErrorMessage
+      v-else-if="getError"
+      :message="getError"
+      :showRetry="true"
+      @retry="retryLoad"
+    />
 
-    <!-- Makale İçeriği -->
+    <!-- Article Content -->
     <article v-else-if="article" class="article-main-layout">
-      <ArticleHero :article="article" :readingTime="calculateReadingTime(article.content)" />
+
+      <ArticleHero
+        :article="article"
+        :readingTime="calculateReadingTime(article.content)"
+      />
 
       <div class="article-content-wrapper">
         <div class="article-body-content" v-html="article.content"></div>
 
-        <!-- Meta Bilgiler ve Aksiyonlar -->
         <div class="article-meta-info">
           <div class="tags-section">
             <span class="meta-label">Etiketler:</span>
             <span class="tag-pill" v-for="tag in article.tags" :key="tag">{{ tag }}</span>
-            <span class="tag-pill">Genel</span>
           </div>
 
           <div class="actions-section">
@@ -38,6 +42,7 @@
             <button class="action-icon-btn" @click="isShareModalVisible = true">
               <i class="fas fa-share-alt"></i>
             </button>
+
             <button class="action-icon-btn" @click="likeArticle">
               <i class="fas fa-heart"></i>
               <span>{{ article.articleLikeCount || 0 }}</span>
@@ -45,76 +50,112 @@
           </div>
         </div>
 
-        <!-- Navigasyon -->
-        <ArticleNavigation :previousArticle="previousArticle" :nextArticle="nextArticle" />
+        <!-- Yorum Listesi -->
+        <CommentList :comments="article.comments" />
+
+        <!-- Yorum Ekleme Formu -->
+        <div class="comment-form">
+          <h3>Yorum Yap</h3>
+
+          <textarea
+            v-model="newComment"
+            placeholder="Yorumunuzu yazın..."
+            class="comment-input"
+          ></textarea>
+
+          <button
+            class="comment-submit-btn"
+            :disabled="isCommentSending || !newComment.trim()"
+            @click="submitComment"
+          >
+            <span v-if="!isCommentSending">Gönder</span>
+            <span v-else>Gönderiliyor...</span>
+          </button>
+
+          <p v-if="commentError" class="comment-error">{{ commentError }}</p>
+        </div>
+
+        <ArticleNavigation
+          :previousArticle="previousArticle"
+          :nextArticle="nextArticle"
+        />
       </div>
+
     </article>
 
     <!-- Share Modal -->
     <ShareModal
       :isVisible="isShareModalVisible"
-      :shareText="article ? `Bu makaleyi oku: ${article.title}` : 'İlginç bir makale!'"
+      :shareText="article ? `Bu makaleyi oku: ${article.title}` : ''"
       :articleId="article?.id"
       @close="isShareModalVisible = false"
-      @comment-submitted="onCommentSubmitted"
     />
   </div>
 </template>
 
 <script>
-import ApiService from "@/services/ApiService";
+import { mapGetters, mapActions } from "vuex";
 import ArticleHero from "@/components/Article/ArticleHero.vue";
 import ArticleNavigation from "@/components/Article/ArticleNavigation.vue";
+import CommentList from "@/components/Article/CommentList.vue";
 import ShareModal from "@/components/ShareModal.vue";
+import ErrorMessage from "@/components/common/ErrorMessage.vue";
+import LoadingSpinner from "@/components/common/LoadingSpinner.vue";
+import ApiService from "@/services/ApiService";
 
 export default {
   name: "ArticleDetail",
-  components: { ArticleHero, ArticleNavigation, ShareModal },
+  components: {
+    ArticleHero,
+    ArticleNavigation,
+    CommentList,
+    ShareModal,
+    ErrorMessage,
+    LoadingSpinner
+  },
+
   data() {
     return {
-      article: null,
+      isShareModalVisible: false,
       previousArticle: null,
       nextArticle: null,
-      loading: true,
-      error: null,
-      isShareModalVisible: false,
+
+      // yorum ekleme
+      newComment: "",
+      isCommentSending: false,
+      commentError: null
     };
   },
-  async created() {
-    await this.fetchArticleBySlug(this.$route.params.slug);
+
+  computed: {
+    ...mapGetters("articles", ["articleDetail", "isLoading", "getError"]),
+    article() {
+      return this.articleDetail;
+    },
   },
-  mounted() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+  created() {
+    this.loadArticle();
   },
+
   watch: {
-    "$route.params.slug": {
-      immediate: true,
-      async handler(newSlug) {
-        await this.fetchArticleBySlug(newSlug);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      },
-    },
+    "$route.params.slug"() {
+      this.loadArticle();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   },
+
   methods: {
-    onCommentSubmitted(commentData) {
-      console.log("Yorum gönderildi:", commentData);
+    ...mapActions("articles", ["fetchArticleBySlug"]),
+    ...mapActions("comments", ["createComment"]),   // YENİ EKLENDİ
+
+    loadArticle() {
+      this.fetchArticleBySlug(this.$route.params.slug);
+      this.simulateNavigationArticles();
     },
 
-    async fetchArticleBySlug(slug) {
-      this.loading = true;
-      this.error = null;
-      this.article = null;
-      this.previousArticle = null;
-      this.nextArticle = null;
-
-      const result = await ApiService.fetch(`article/slug/${slug}`);
-      if (result.success) {
-        this.article = result.data;
-        this.simulateNavigationArticles();
-      } else {
-        this.error = result.message || "Makale bulunamadı veya yüklenirken bir hata oluştu.";
-      }
-      this.loading = false;
+    retryLoad() {
+      this.loadArticle();
     },
 
     calculateReadingTime(content) {
@@ -125,52 +166,112 @@ export default {
     },
 
     simulateNavigationArticles() {
-      this.previousArticle = { slug: "onceki-makale-ornek", title: "Önceki Makale Başlığı" };
-      this.nextArticle = { slug: "sonraki-makale-ornek", title: "Sonraki Makale Başlığı" };
+      this.previousArticle = { slug: "onceki-makale", title: "Önceki Makale" };
+      this.nextArticle = { slug: "sonraki-makale", title: "Sonraki Makale" };
     },
 
     async likeArticle() {
-      try {
-        const result = await ApiService.create("ArticleLike/createArticleLike", {
-          articleId: this.article.id,
+      const result = await ApiService.create("ArticleLike/createArticleLike", {
+        articleId: this.article.id,
+      });
+
+      if (result.success) {
+        this.article.articleLikeCount = result.data.likes;
+        this.article.isLiked = result.data.isliked;
+
+        this.$notify.show({
+          type: "success",
+          title: "Başarılı",
+          message: result.message,
         });
-
-        if (result.success) {
-          const data = result.data;
-          console.log(result); 
-
-          // DB’den gelen değerleri kullanma
-          this.article.articleLikeCount = data.likes || 0;
-          this.article.isLiked = data.isliked || false;
-
-          this.$notify.show({
-            type: "success",
-            title: "Başarılı",
-            message: result.message,
-            duration: 3000,
-          });
-        } else {
-          this.$notify.show({
-            type: "error",
-            title: "Hata",
-            message: result.message || "Beğeni işlemi başarısız.",
-            duration: 4000,
-          });
-        }
-      } catch (error) {
+      } else {
         this.$notify.show({
           type: "error",
           title: "Hata",
-          message: "Bir hata oluştu. Lütfen tekrar deneyin.",
-          duration: 4000,
+          message: result.message,
         });
       }
     },
-  },
+
+    // -------------------------------------------
+    //           YORUM GÖNDERME (YENİ)
+    // -------------------------------------------
+    async submitComment() {
+      if (!this.newComment.trim()) return;
+
+      this.isCommentSending = true;
+      this.commentError = null;
+
+      const response = await this.createComment({
+        articleId: this.article.id,
+        content: this.newComment
+      });
+
+      if (response.success) {
+        this.newComment = "";
+        await this.fetchArticleBySlug(this.$route.params.slug);
+
+        this.$notify.show({
+          type: "success",
+          title: "Yorum Gönderildi",
+          message: response.message
+        });
+      } else {
+        this.commentError = response.message;
+      }
+
+      this.isCommentSending = false;
+    }
+  }
 };
 </script>
 
 <style scoped>
+.comment-form {
+  margin-top: 40px;
+  padding: 25px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.comment-form h3 {
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.comment-input {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  resize: vertical;
+}
+
+.comment-submit-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.comment-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.comment-error {
+  margin-top: 10px;
+  color: #ef4444;
+}
 .article-detail-page-wrapper {
   padding-top: 80px;
   background-color: #fcfcfc;
@@ -222,12 +323,8 @@ export default {
   font-size: 1.1rem;
 }
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .error-message-box {
@@ -281,9 +378,7 @@ export default {
   color: #475569;
   font-family: "Merriweather", serif;
 }
-.article-body-content :deep(p) {
-  margin-bottom: 1.5rem;
-}
+.article-body-content :deep(p) { margin-bottom: 1.5rem; }
 .article-body-content :deep(h2),
 .article-body-content :deep(h3),
 .article-body-content :deep(h4) {
@@ -297,9 +392,7 @@ export default {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
 }
-.article-body-content :deep(h3) {
-  font-size: 1.6rem;
-}
+.article-body-content :deep(h3) { font-size: 1.6rem; }
 .article-body-content :deep(img) {
   max-width: 100%;
   height: auto;
@@ -334,10 +427,7 @@ export default {
   border-radius: 4px;
   font-family: "Fira Code", monospace;
 }
-.article-body-content :deep(pre code) {
-  background: none;
-  padding: 0;
-}
+.article-body-content :deep(pre code) { background: none; padding: 0; }
 
 .article-meta-info {
   display: flex;
@@ -350,19 +440,8 @@ export default {
   gap: 20px;
 }
 
-.meta-label {
-  font-weight: 700;
-  color: #64748b;
-  margin-right: 10px;
-  font-size: 0.95rem;
-}
-.tags-section,
-.actions-section {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+.meta-label { font-weight: 700; color: #64748b; margin-right: 10px; font-size: 0.95rem; }
+.tags-section, .actions-section { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .tag-pill {
   background: #e2e8f0;
   color: #475569;
@@ -373,9 +452,7 @@ export default {
   transition: background 0.2s ease;
   cursor: pointer;
 }
-.tag-pill:hover {
-  background: #cbd5e1;
-}
+.tag-pill:hover { background: #cbd5e1; }
 
 .action-icon-btn {
   background: #f1f5f9;
@@ -392,49 +469,17 @@ export default {
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-.action-icon-btn:hover {
-  background: #e2e8f0;
-  color: #3b82f6;
-  transform: translateY(-2px);
-}
-.action-icon-btn .fa-heart {
-  color: #ef4444;
-}
-.action-icon-btn span {
-  font-size: 0.85rem;
-  margin-left: 5px;
-  color: #475569;
-  font-weight: 600;
-}
+.action-icon-btn:hover { background: #e2e8f0; color: #3b82f6; transform: translateY(-2px); }
+.action-icon-btn .fa-heart { color: #ef4444; }
+.action-icon-btn span { font-size: 0.85rem; margin-left: 5px; color: #475569; font-weight: 600; }
 
 @media (max-width: 768px) {
-  .article-content-wrapper {
-    padding: 30px;
-    margin-top: -60px;
-    border-radius: 8px;
-  }
-  .back-to-articles-btn {
-    padding: 15px 20px;
-    font-size: 0.9rem;
-  }
-  .article-body-content {
-    font-size: 1rem;
-  }
-  .article-body-content :deep(h2) {
-    font-size: 1.6rem;
-  }
-  .article-body-content :deep(h3) {
-    font-size: 1.3rem;
-  }
-  .article-meta-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 25px;
-  }
-  .tags-section,
-  .actions-section {
-    width: 100%;
-    justify-content: flex-start;
-  }
+  .article-content-wrapper { padding: 30px; margin-top: -60px; border-radius: 8px; }
+  .back-to-articles-btn { padding: 15px 20px; font-size: 0.9rem; }
+  .article-body-content { font-size: 1rem; }
+  .article-body-content :deep(h2) { font-size: 1.6rem; }
+  .article-body-content :deep(h3) { font-size: 1.3rem; }
+  .article-meta-info { flex-direction: column; align-items: flex-start; gap: 25px; }
+  .tags-section, .actions-section { width: 100%; justify-content: flex-start; }
 }
 </style>

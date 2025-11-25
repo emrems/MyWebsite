@@ -1,4 +1,6 @@
-﻿namespace MyWebsite.Entities
+﻿using MyWebsite.Dtos.Comment;
+
+namespace MyWebsite.Entities
 {
     public class Article
     {
@@ -16,6 +18,7 @@
         public Category? Category { get; set; }
 
         public ICollection<ArticleLike> Likes { get; set; } = new List<ArticleLike>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
     }
 

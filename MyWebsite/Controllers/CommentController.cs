@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.Error;
 using MyWebsite.Service.İnterfaces;
@@ -23,6 +24,14 @@ namespace MyWebsite.Controllers
             var result = await _manager.CommentService.gettAllComment();
             return CreateResponse(result);
         }
+
+        //[Authorize]
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> getAllComments(int id)
+        //{
+        //    var result = await _manager.CommentService.GetCommentById(id);
+        //    return CreateResponse(result);
+        //}
 
         [HttpPost("CreateComment")]
         public async Task<IActionResult> CreateComment(createCommentDto dto)

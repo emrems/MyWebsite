@@ -56,6 +56,7 @@ namespace MyWebsite.Controllers
             return CreateResponse(result);
         }
 
+      //  [Authorize]
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetArticleBySlug(string slug)
         {

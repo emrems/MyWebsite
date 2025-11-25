@@ -1,8 +1,8 @@
-
 import ApiService from '@/services/ApiService';
 
 const state = {
   articles: [],
+  articleDetail: null,
   loading: false,
   error: null
 };
@@ -10,6 +10,9 @@ const state = {
 const mutations = {
   setArticles(state, articles) {
     state.articles = articles;
+  },
+  setArticleDetail(state, article) {
+    state.articleDetail = article;
   },
   setLoading(state, status) {
     state.loading = status;
@@ -34,11 +37,29 @@ const actions = {
     }
     
     commit('setLoading', false);
+  },
+
+  async fetchArticleBySlug({ commit }, slug) {
+    commit('setLoading', true);
+    commit('setError', null);
+    commit('setArticleDetail', null);
+
+    const result = await ApiService.fetch(`article/slug/${slug}`);
+
+    if (result.success) {
+      console.log("sonuç",result)
+      commit('setArticleDetail', result.data);
+    } else {
+      commit('setError', result.message || "Makale bulunamadı");
+    }
+
+    commit('setLoading', false);
   }
 };
 
 const getters = {
   allArticles: state => state.articles,
+  articleDetail: state => state.articleDetail,
   isLoading: state => state.loading,
   getError: state => state.error
 };

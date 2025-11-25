@@ -32,6 +32,8 @@ namespace MyWebsite.Repository.Concrate
         {
             var article = await   _DbContext.Set<Article>()
                 .Include(x=>x.Likes)
+                .Include(x=>x.Comments)
+                    .ThenInclude(x=>x.User)
                 .FirstOrDefaultAsync(a => a.Slug == slug);
             return article;
         }

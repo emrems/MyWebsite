@@ -64,6 +64,30 @@ namespace MyWebsite.Service.Concrate
             
         }
 
+        //public async Task<BaseResponse<List<ReadCommentDto>>> GetCommentById(int ArticleId)
+        //{
+        //    var comment = await _manager.CommentRepository.getById(ArticleId);
+        //    if (comment == null)
+        //        throw new NotFoundException("istenilen id ye göre yorum yok");
+
+        //    var userName = _acsessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+        //    var commentDto = new ReadCommentDto
+        //    {
+        //        CreatedDate = comment.CreatedDate,
+        //        Id = comment.Id,
+        //        Content = comment.Content,
+        //        ArticleTitle = comment.Article.Title,
+        //        UserName = userName
+        //    };
+        //    return new BaseResponse<List<ReadCommentDto>>
+        //    {
+        //        IsSuccess = true,
+        //        Data =  commentDto,
+        //        ErrroCode = null,
+        //        Message = "başarılı çekilde"
+        //    };
+        //}
+
         public async Task<BaseResponse<IEnumerable<ReadCommentDto>>> gettAllComment()
         {
             var comments = await _manager.CommentRepository.FindAll().ToListAsync();
@@ -72,10 +96,8 @@ namespace MyWebsite.Service.Concrate
                 Id = cmnt.Id,
                 Content = cmnt.Content,
                 CreatedDate = cmnt.CreatedDate,
-                User = cmnt.User,
-                UserId=cmnt.UserId,
-                ArticleId = cmnt.ArticleId,
-                Article = cmnt.Article
+                UserName=cmnt.User?.Username,
+                ArticleTitle = cmnt.Article?.Title
 
             }).ToList();
 

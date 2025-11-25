@@ -1,4 +1,5 @@
-﻿using MyWebsite.Entities;
+﻿using MyWebsite.Dtos.Comment;
+using MyWebsite.Entities;
 
 namespace MyWebsite.Dtos.ArticleDtos
 {
@@ -11,6 +12,7 @@ namespace MyWebsite.Dtos.ArticleDtos
         public bool IsLiked { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public int ArticleLikeCount { get; set; }
+        public ICollection<ReadCommentDto> Comments { get; set; } 
 
 
     }
