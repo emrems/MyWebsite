@@ -1,32 +1,19 @@
 <template>
   <div class="article-detail-page-wrapper">
-    
     <!-- Geri Dön -->
     <button class="back-to-articles-btn" @click="$router.push('/articles')">
       <i class="fas fa-chevron-left"></i> Tüm Makaleler
     </button>
 
     <!-- Loading -->
-    <LoadingSpinner
-      v-if="isLoading"
-      text="Makale yükleniyor..."
-    />
+    <LoadingSpinner v-if="isLoading" text="Makale yükleniyor..." />
 
     <!-- Error -->
-    <ErrorMessage
-      v-else-if="getError"
-      :message="getError"
-      :showRetry="true"
-      @retry="retryLoad"
-    />
+    <ErrorMessage v-else-if="getError" :message="getError" :showRetry="true" @retry="retryLoad" />
 
     <!-- Article Content -->
     <article v-else-if="article" class="article-main-layout">
-
-      <ArticleHero
-        :article="article"
-        :readingTime="calculateReadingTime(article.content)"
-      />
+      <ArticleHero :article="article" :readingTime="calculateReadingTime(article.content)" />
 
       <div class="article-content-wrapper">
         <div class="article-body-content" v-html="article.content"></div>
@@ -71,16 +58,10 @@
             <span v-if="!isCommentSending">Gönder</span>
             <span v-else>Gönderiliyor...</span>
           </button>
-
-          <p v-if="commentError" class="comment-error">{{ commentError }}</p>
         </div>
 
-        <ArticleNavigation
-          :previousArticle="previousArticle"
-          :nextArticle="nextArticle"
-        />
+        <ArticleNavigation :previousArticle="previousArticle" :nextArticle="nextArticle" />
       </div>
-
     </article>
 
     <!-- Share Modal -->
@@ -111,7 +92,7 @@ export default {
     CommentList,
     ShareModal,
     ErrorMessage,
-    LoadingSpinner
+    LoadingSpinner,
   },
 
   data() {
@@ -123,7 +104,6 @@ export default {
       // yorum ekleme
       newComment: "",
       isCommentSending: false,
-      commentError: null
     };
   },
 
@@ -142,12 +122,12 @@ export default {
     "$route.params.slug"() {
       this.loadArticle();
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    },
   },
 
   methods: {
     ...mapActions("articles", ["fetchArticleBySlug"]),
-    ...mapActions("comments", ["createComment"]),   // YENİ EKLENDİ
+    ...mapActions("comments", ["createComment"]), // YENİ EKLENDİ
 
     loadArticle() {
       this.fetchArticleBySlug(this.$route.params.slug);
@@ -200,11 +180,10 @@ export default {
       if (!this.newComment.trim()) return;
 
       this.isCommentSending = true;
-      this.commentError = null;
 
       const response = await this.createComment({
         articleId: this.article.id,
-        content: this.newComment
+        content: this.newComment,
       });
 
       if (response.success) {
@@ -214,15 +193,21 @@ export default {
         this.$notify.show({
           type: "success",
           title: "Yorum Gönderildi",
-          message: response.message
+          message: response.message,
         });
       } else {
-        this.commentError = response.message;
+        this.$notify.show({
+          type: "error",
+          title: "Hata",
+          message: response.message,
+        });
+
+        this.newComment = "";
       }
 
       this.isCommentSending = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -268,10 +253,6 @@ export default {
   background: #2563eb;
 }
 
-.comment-error {
-  margin-top: 10px;
-  color: #ef4444;
-}
 .article-detail-page-wrapper {
   padding-top: 80px;
   background-color: #fcfcfc;
@@ -323,8 +304,12 @@ export default {
   font-size: 1.1rem;
 }
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message-box {
@@ -378,7 +363,9 @@ export default {
   color: #475569;
   font-family: "Merriweather", serif;
 }
-.article-body-content :deep(p) { margin-bottom: 1.5rem; }
+.article-body-content :deep(p) {
+  margin-bottom: 1.5rem;
+}
 .article-body-content :deep(h2),
 .article-body-content :deep(h3),
 .article-body-content :deep(h4) {
@@ -392,7 +379,9 @@ export default {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
 }
-.article-body-content :deep(h3) { font-size: 1.6rem; }
+.article-body-content :deep(h3) {
+  font-size: 1.6rem;
+}
 .article-body-content :deep(img) {
   max-width: 100%;
   height: auto;
@@ -427,7 +416,10 @@ export default {
   border-radius: 4px;
   font-family: "Fira Code", monospace;
 }
-.article-body-content :deep(pre code) { background: none; padding: 0; }
+.article-body-content :deep(pre code) {
+  background: none;
+  padding: 0;
+}
 
 .article-meta-info {
   display: flex;
@@ -440,8 +432,19 @@ export default {
   gap: 20px;
 }
 
-.meta-label { font-weight: 700; color: #64748b; margin-right: 10px; font-size: 0.95rem; }
-.tags-section, .actions-section { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.meta-label {
+  font-weight: 700;
+  color: #64748b;
+  margin-right: 10px;
+  font-size: 0.95rem;
+}
+.tags-section,
+.actions-section {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 .tag-pill {
   background: #e2e8f0;
   color: #475569;
@@ -452,7 +455,9 @@ export default {
   transition: background 0.2s ease;
   cursor: pointer;
 }
-.tag-pill:hover { background: #cbd5e1; }
+.tag-pill:hover {
+  background: #cbd5e1;
+}
 
 .action-icon-btn {
   background: #f1f5f9;
@@ -469,17 +474,49 @@ export default {
   transition: all 0.2s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-.action-icon-btn:hover { background: #e2e8f0; color: #3b82f6; transform: translateY(-2px); }
-.action-icon-btn .fa-heart { color: #ef4444; }
-.action-icon-btn span { font-size: 0.85rem; margin-left: 5px; color: #475569; font-weight: 600; }
+.action-icon-btn:hover {
+  background: #e2e8f0;
+  color: #3b82f6;
+  transform: translateY(-2px);
+}
+.action-icon-btn .fa-heart {
+  color: #ef4444;
+}
+.action-icon-btn span {
+  font-size: 0.85rem;
+  margin-left: 5px;
+  color: #475569;
+  font-weight: 600;
+}
 
 @media (max-width: 768px) {
-  .article-content-wrapper { padding: 30px; margin-top: -60px; border-radius: 8px; }
-  .back-to-articles-btn { padding: 15px 20px; font-size: 0.9rem; }
-  .article-body-content { font-size: 1rem; }
-  .article-body-content :deep(h2) { font-size: 1.6rem; }
-  .article-body-content :deep(h3) { font-size: 1.3rem; }
-  .article-meta-info { flex-direction: column; align-items: flex-start; gap: 25px; }
-  .tags-section, .actions-section { width: 100%; justify-content: flex-start; }
+  .article-content-wrapper {
+    padding: 30px;
+    margin-top: -60px;
+    border-radius: 8px;
+  }
+  .back-to-articles-btn {
+    padding: 15px 20px;
+    font-size: 0.9rem;
+  }
+  .article-body-content {
+    font-size: 1rem;
+  }
+  .article-body-content :deep(h2) {
+    font-size: 1.6rem;
+  }
+  .article-body-content :deep(h3) {
+    font-size: 1.3rem;
+  }
+  .article-meta-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 25px;
+  }
+  .tags-section,
+  .actions-section {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 </style>

@@ -28,7 +28,7 @@
         </div>
         <div class="meta-item">
           <i class="icon-user"></i>
-          <span>Yazar: Admin</span>
+          <span>Yazar: {{article.authorName}}</span>
         </div>
       </div>
     </div>

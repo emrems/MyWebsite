@@ -153,7 +153,9 @@ namespace MyWebsite.Service.Concrate
             {
                 throw new NotFoundException("Article bulunamdı");
             }
-          
+            var authorDb = await _repository.UserRepository.GetByIdAsync(article.AuthorId);
+            var authorFulname = authorDb.FullName;
+
             var articleDto = new ReadArticleDtos
             {
                 Id = article.Id,
@@ -163,6 +165,7 @@ namespace MyWebsite.Service.Concrate
                 CreatedDate = article.CreatedDate,
                 ArticleLikeCount = article.Likes.Count,
                 IsLiked = article.IsLiked,
+                AuthorName = authorFulname,
                 Comments = article.Comments.Select(x => new ReadCommentDto
                 {
                     ArticleTitle = x.Article.Title,

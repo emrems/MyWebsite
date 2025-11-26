@@ -42,6 +42,7 @@ namespace MyWebsite.Service.Concrate
             var userCreate = new User
             {
                 Username = user.Username,
+                SurName=user.SurName,
                 Email = user.Email,
                 PasswordHash = user.Password,
                 CreatedDate = DateTime.Now,
