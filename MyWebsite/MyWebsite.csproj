@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <Folder Include="Dtos\LogDtos\" />
+    <Folder Include="wwwroot\uploads\media\" />
   </ItemGroup>
 
 </Project>

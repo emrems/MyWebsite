@@ -15,6 +15,7 @@ namespace MyWebsite.Service.Concrate
         private readonly Lazy<ISkilService> _skillService;
         private readonly Lazy<IExperinceServices> _experinceService;
         private readonly Lazy<IArticleLikeService> _articleLikeService;
+        private readonly Lazy<IMediService> _mediaService;
         private readonly IServiceProvider _serviceProvider;
 
         public ServiceManager(IRepositoryManager manager, IConfiguration configuration, IServiceProvider serviceProvider)
@@ -47,6 +48,8 @@ namespace MyWebsite.Service.Concrate
                 ActivatorUtilities.CreateInstance<ExperinceManager>(_serviceProvider, manager));
             _articleLikeService = new Lazy<IArticleLikeService>(() =>
                 ActivatorUtilities.CreateInstance<ArticleLikeManager>(_serviceProvider, manager));
+            _mediaService = new Lazy<IMediService>(() =>
+                ActivatorUtilities.CreateInstance<MediaManager>(_serviceProvider, manager));
         }
 
         public IUserService UserService => _userService.Value;
@@ -63,5 +66,7 @@ namespace MyWebsite.Service.Concrate
         public IExperinceServices ExperinceService => _experinceService.Value;
 
         public IArticleLikeService ArticleLikeService => _articleLikeService.Value;
+
+        public IMediService MediaService => _mediaService.Value;
     }
 }

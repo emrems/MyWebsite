@@ -16,8 +16,35 @@
       <ArticleHero :article="article" :readingTime="calculateReadingTime(article.content)" />
 
       <div class="article-content-wrapper">
+        <!-- Article Body Content -->
         <div class="article-body-content" v-html="article.content"></div>
 
+        <!-- Makaleye ait tüm resimler -->
+        <div v-if="articleImages.length > 0" class="article-gallery">
+          <h3>Görseller</h3>
+          <div class="gallery-grid">
+            <div
+              v-for="image in articleImages"
+              :key="image.id"
+              class="gallery-item"
+              @click="openLightbox(image)"
+            >
+              <img :src="image.url" :alt="article.title" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Makaleye ait videolar (varsa) -->
+        <div v-if="articleVideos.length > 0" class="article-videos">
+          <h3>Videolar</h3>
+          <div class="videos-grid">
+            <div v-for="video in articleVideos" :key="video.id" class="video-item">
+              <video controls :src="video.url"></video>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta Info -->
         <div class="article-meta-info">
           <div class="tags-section">
             <span class="meta-label">Etiketler:</span>
@@ -71,6 +98,14 @@
       :articleId="article?.id"
       @close="isShareModalVisible = false"
     />
+
+    <!-- Lightbox Modal (resmi büyütmek için) -->
+    <div v-if="lightboxImage" class="lightbox-overlay" @click="closeLightbox">
+      <div class="lightbox-content" @click.stop>
+        <button class="lightbox-close" @click="closeLightbox">&times;</button>
+        <img :src="lightboxImage.url" :alt="article.title" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,17 +135,34 @@ export default {
       isShareModalVisible: false,
       previousArticle: null,
       nextArticle: null,
-
-      // yorum ekleme
       newComment: "",
       isCommentSending: false,
+      lightboxImage: null, // Lightbox için
     };
   },
 
   computed: {
     ...mapGetters("articles", ["articleDetail", "isLoading", "getError"]),
+
     article() {
       return this.articleDetail;
+    },
+
+    // Sadece Image tipindeki medyaları filtrele
+    articleImages() {
+      if (!this.article || !this.article.mediaFiles) return [];
+      return this.article.mediaFiles
+        .filter((m) => m.type === 0)
+        .map((m) => ({
+          ...m,
+          url: m.url.startsWith("http") ? m.url : `${import.meta.env.VITE_API_BASE_URL}${m.url}`,
+        }));
+    },
+
+    // Sadece Video tipindeki medyaları filtrele
+    articleVideos() {
+      if (!this.article || !this.article.mediaFiles) return [];
+      return this.article.mediaFiles.filter((m) => m.type === 1); // 1 = Video
     },
   },
 
@@ -127,7 +179,7 @@ export default {
 
   methods: {
     ...mapActions("articles", ["fetchArticleBySlug"]),
-    ...mapActions("comments", ["createComment"]), // YENİ EKLENDİ
+    ...mapActions("comments", ["createComment"]),
 
     loadArticle() {
       this.fetchArticleBySlug(this.$route.params.slug);
@@ -173,9 +225,6 @@ export default {
       }
     },
 
-    // -------------------------------------------
-    //           YORUM GÖNDERME (YENİ)
-    // -------------------------------------------
     async submitComment() {
       if (!this.newComment.trim()) return;
 
@@ -206,6 +255,15 @@ export default {
       }
 
       this.isCommentSending = false;
+    },
+
+    // Lightbox fonksiyonları
+    openLightbox(image) {
+      this.lightboxImage = image;
+    },
+
+    closeLightbox() {
+      this.lightboxImage = null;
     },
   },
 };
@@ -421,6 +479,114 @@ export default {
   padding: 0;
 }
 
+/* Gallery Styles */
+.article-gallery {
+  margin: 40px 0;
+}
+
+.article-gallery h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.gallery-item {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 12px;
+  aspect-ratio: 16/9;
+  background: #f1f5f9;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Video Styles */
+.article-videos {
+  margin: 40px 0;
+}
+
+.article-videos h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.video-item video {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Lightbox Styles */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  cursor: default;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.lightbox-close:hover {
+  transform: scale(1.2);
+}
+
 .article-meta-info {
   display: flex;
   justify-content: space-between;
@@ -517,6 +683,17 @@ export default {
   .actions-section {
     width: 100%;
     justify-content: flex-start;
+  }
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .videos-grid {
+    grid-template-columns: 1fr;
+  }
+  .lightbox-close {
+    top: -50px;
+    font-size: 2.5rem;
   }
 }
 </style>

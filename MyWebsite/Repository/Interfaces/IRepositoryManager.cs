@@ -11,6 +11,7 @@
         ISkillsRepository SkillsRepository { get; }
         IExperinceRepository ExperinceRepository { get; }
         IArticleLikeRepository ArticleLikeRepository { get; }
+        IMediaRepository MediaRepository { get; }
         Task SaveAsync();
     }
 }

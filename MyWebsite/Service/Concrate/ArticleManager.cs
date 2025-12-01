@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyWebsite.Dtos.ArticleDtos;
 using MyWebsite.Dtos.Comment;
+using MyWebsite.Dtos.MediaDtos;
 using MyWebsite.Dtos.Response;
 using MyWebsite.Entities;
 using MyWebsite.Exceptions;
@@ -153,7 +154,7 @@ namespace MyWebsite.Service.Concrate
             {
                 throw new NotFoundException("Article bulunamdı");
             }
-            var authorDb = await _repository.UserRepository.GetByIdAsync(article.AuthorId);
+            var authorDb = await _repository.UserRepository.GetByIdAsync(article.AuthorId);// burada jwt kullanırsam burası güncellenebilir
             var authorFulname = authorDb.FullName;
 
             var articleDto = new ReadArticleDtos
@@ -166,6 +167,12 @@ namespace MyWebsite.Service.Concrate
                 ArticleLikeCount = article.Likes.Count,
                 IsLiked = article.IsLiked,
                 AuthorName = authorFulname,
+                MediaFiles = article.Media.Select(m => new MediaDto
+                {
+                    Id = m.Id,
+                    Url = m.Url,
+                    Type = m.Type
+                }).ToList(),
                 Comments = article.Comments.Select(x => new ReadCommentDto
                 {
                     ArticleTitle = x.Article.Title,

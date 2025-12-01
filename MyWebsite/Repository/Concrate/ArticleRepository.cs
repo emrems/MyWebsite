@@ -34,6 +34,7 @@ namespace MyWebsite.Repository.Concrate
                 .Include(x=>x.Likes)
                 .Include(x=>x.Comments)
                     .ThenInclude(x=>x.User)
+                .Include(x=>x.Media)
                 .FirstOrDefaultAsync(a => a.Slug == slug);
             return article;
         }

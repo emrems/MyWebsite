@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models; // Swagger için eklendi
 using MyWebsite.Dtos.CategoryDtos;
 using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.Experince;
@@ -22,8 +24,9 @@ using MyWebsite.Validator.Experience;
 using MyWebsite.Validator.Message;
 using MyWebsite.Validator.Project;
 using MyWebsite.Validator.User;
-using Scalar.AspNetCore;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 // CORS servisini ekle
@@ -41,9 +44,42 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-// OpenAPI metadata (endpointler Scalar’ın göreceği JSON’u buradan alacak)
+// Swagger/OpenAPI Servisleri Eklendi (Swashbuckle)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyWebsite API", Version = "v1" });
+
+    // JWT desteğini Swagger UI'a ekle
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+});
+
+
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -70,9 +106,9 @@ builder.Services.AddDbContext<MyWebSiteData>(options =>
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService,CategoryManager>();
+builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-builder.Services.AddScoped<IProjectService,ProjectManager>();
+builder.Services.AddScoped<IProjectService, ProjectManager>();
 builder.Services.AddScoped<IServiceManager, ServiceManager>();
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
@@ -88,6 +124,8 @@ builder.Services.AddScoped<IExperinceRepository, ExperinceRepository>();
 builder.Services.AddScoped<IExperinceServices, ExperinceManager>();
 builder.Services.AddScoped<IArticleLikeRepository, ArticleLikeRepository>();
 builder.Services.AddScoped<IArticleLikeService, ArticleLikeManager>();
+builder.Services.AddScoped<IMediaRepository, MediaRepository>();
+builder.Services.AddScoped<IMediService, MediaManager>();
 
 
 // validators
@@ -121,24 +159,32 @@ app.UseExceptionHandler(errorApp =>
 
 if (app.Environment.IsDevelopment())
 {
-    // OpenAPI dokümanı üret
-    app.MapOpenApi();
+    // Swagger belgesini kullan
+    app.UseSwagger();
+    // Swagger UI arayüzünü kullan
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyWebsite API V1");
+    });
 }
-
-// Scalar UI
-app.MapScalarApiReference(
-   opt =>
-   {
-       opt.Title = "KafeApi API Reference";
-       opt.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
-       opt.Theme = ScalarTheme.BluePlanet;
-   }
-);
 
 app.UseHttpsRedirection();
 // CORS middleware'ini kullan
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
+// ----------------------------
+// Static Files Middleware
+// ----------------------------
+app.UseStaticFiles(); // wwwroot için
+// wwwroot altındaki uploads klasörünü static olarak sun
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")
+    ),
+    RequestPath = "/uploads"
+});
+
 app.MapControllers();
 app.Run();

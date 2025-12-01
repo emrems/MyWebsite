@@ -11,6 +11,8 @@
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public int? CategoryId { get; set; }
         public Category? Category { get; set; }
+        public ICollection<Media> Media { get; set; } = new List<Media>();
+
 
     }
 

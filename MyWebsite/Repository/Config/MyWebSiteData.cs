@@ -21,7 +21,7 @@ namespace MyWebsite.Repository.config
         public DbSet<ArticleLike> ArticleLikes { get; set; }
         public DbSet<Experience> Experinces { get; set; }
         public DbSet<Skill> Skills { get; set; }
-        //   public DbSet<Media> Medias { get; set; }
+        public DbSet<Media> Media { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

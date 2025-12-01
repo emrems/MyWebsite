@@ -3,7 +3,7 @@
     <div
       class="article-hero-image"
       :style="{
-        backgroundImage: `url(https://picsum.photos/1200/600?random=${article.id})`,
+        backgroundImage: `url(${heroImage})`,
       }"
     ></div>
     <div class="article-hero-content">
@@ -28,7 +28,7 @@
         </div>
         <div class="meta-item">
           <i class="icon-user"></i>
-          <span>Yazar: {{article.authorName}}</span>
+          <span>Yazar: {{ article.authorName }}</span>
         </div>
       </div>
     </div>
@@ -58,6 +58,18 @@ export default {
         month: "long",
         day: "numeric",
       });
+    },
+
+    heroImage() {
+      // MediaFiles'dan ilk Image tipindeki resmi al (hero için)
+      if (this.article.mediaFiles && this.article.mediaFiles.length > 0) {
+        const firstImage = this.article.mediaFiles.find(m => m.type === 0); // 0 = Image
+        if (firstImage) {
+          return firstImage.url;
+        }
+      }
+      // Fallback: eğer resim yoksa placeholder
+      return `https://picsum.photos/1200/600?random=${this.article.id}`;
     }
   }
 };

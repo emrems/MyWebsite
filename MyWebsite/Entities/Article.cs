@@ -19,6 +19,8 @@ namespace MyWebsite.Entities
 
         public ICollection<ArticleLike> Likes { get; set; } = new List<ArticleLike>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Media> Media { get; set; } = new List<Media>();
+
 
     }
 

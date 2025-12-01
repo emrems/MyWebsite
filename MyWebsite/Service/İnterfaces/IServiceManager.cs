@@ -12,6 +12,7 @@
         ISkilService SkillService { get; }
         IExperinceServices ExperinceService { get; }
         IArticleLikeService ArticleLikeService { get; }
+        IMediService MediaService { get; }
 
 
     }

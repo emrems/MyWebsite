@@ -1,4 +1,5 @@
 ﻿using MyWebsite.Dtos.Comment;
+using MyWebsite.Dtos.MediaDtos;
 using System.Collections.Generic; 
 
 namespace MyWebsite.Dtos.ArticleDtos
@@ -24,5 +25,6 @@ namespace MyWebsite.Dtos.ArticleDtos
 
        
         public ICollection<ReadCommentDto> Comments { get; set; } = new List<ReadCommentDto>();
+        public List<MediaDto> MediaFiles { get; set; } = new();
     }
 }
