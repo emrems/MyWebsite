@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebsite.Dtos.ArticleDtos;
 using MyWebsite.Dtos.AuthDtos;
+using MyWebsite.Dtos.Comment;
 using MyWebsite.Dtos.Error;
 using MyWebsite.Dtos.Response;
 using MyWebsite.Dtos.UserDtos;
@@ -82,13 +83,20 @@ namespace MyWebsite.Service.Concrate
 
         public async Task<BaseResponse<IEnumerable<ReadUserDtos>>> GetAllUsers()
         {
-            var users= await _manager.UserRepository.GetAllUsers();
+            var users= await _manager.UserRepository.GetAllUsersForArticles();
             var userList = users.Select(user => new ReadUserDtos
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
                 Role = user.Role,
+                Comments = user.Comments.Select(cmt => new ReadCommentDto
+                {
+                    CreatedDate = cmt.CreatedDate,
+                    ArticleTitle = cmt.Article.Title,
+                    Content = cmt.Content,
+                    UserName = cmt.User.FullName
+                }).ToList(),
                 Articles = user.Articles?.Select(art => new ReadArticleDtos
                 {
                     Id = art.Id,

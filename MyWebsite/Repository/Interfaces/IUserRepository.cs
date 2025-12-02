@@ -12,5 +12,7 @@ namespace MyWebsite.Repository.Interfaces
         Task UpdateUser(User user);
         Task DeleteUser(User user);
         Task<User> GetLoginResult(LoginDto loginDto);
+        Task<IEnumerable<User>> GetAllUsersForArticles();
+
     }
 }

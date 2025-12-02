@@ -6,6 +6,8 @@ import experience from './modules/experience';
 import comments from './modules/comments';
 import auth from './modules/auth'; // ⭐ Auth modülünü ekle
 import categories from './modules/categories';
+import users from './modules/user';
+
 
 export default createStore({
   modules: {
@@ -14,6 +16,8 @@ export default createStore({
     experience,
     comments,
     auth, 
-    categories
+    categories,
+    users
+    
   }
 });

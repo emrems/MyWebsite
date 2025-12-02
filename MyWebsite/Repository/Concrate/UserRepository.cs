@@ -27,6 +27,14 @@ namespace MyWebsite.Repository.Concrate
             return await FindAll().ToListAsync();
         }
 
+        public async Task<IEnumerable<User>> GetAllUsersForArticles()
+        {
+            return await _DbContext.Users
+                 .Include(x => x.Comments)
+                 .Include(x => x.Articles)
+                 .ToListAsync();
+        }
+
         public async Task<User?> GetLoginResult(LoginDto loginDto)
         {
             var user = await _DbContext.Users

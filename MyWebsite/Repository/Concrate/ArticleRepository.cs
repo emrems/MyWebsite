@@ -15,6 +15,10 @@ namespace MyWebsite.Repository.Concrate
         {
             var articles = await _DbContext.Articles
                      .Include(a => a.Likes)  
+                     .Include(x=>x.Author) 
+                     
+                     .Include(x=>x.Media)
+                     .Include(x=>x.Comments)
                      .ToListAsync();
             return articles;
         }

@@ -1,4 +1,5 @@
 ﻿using MyWebsite.Dtos.ArticleDtos;
+using MyWebsite.Dtos.Comment;
 using MyWebsite.Entities;
 
 namespace MyWebsite.Dtos.UserDtos
@@ -14,5 +15,6 @@ namespace MyWebsite.Dtos.UserDtos
 
         // Navigation
         public ICollection<ReadArticleDtos>? Articles { get; set; }
+        public ICollection<ReadCommentDto>? Comments { get; set; }
     }
 }

@@ -48,9 +48,9 @@ namespace MyWebsite.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser( [FromBody] UpdateUserDto user)
+        public async Task<IActionResult> UpdateUser( int id,[FromBody] UpdateUserDto user)
         {
-            
+            user.Id = id;
             var result =await _manager.UserService.UpdateUser(user);
             return CreateResponse(result);
         }

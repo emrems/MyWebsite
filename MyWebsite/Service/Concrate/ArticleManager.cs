@@ -97,23 +97,36 @@ namespace MyWebsite.Service.Concrate
             {
                 throw new NotFoundException("Hiçbir article bulunamadı");
             }
-            var articleDtos = articles.Select(a => new ReadArticleDtos
+            var articleDto = articles.Select(article=>new ReadArticleDtos 
             {
-                Id = a.Id,
-                Title = a.Title,
-                Content = a.Content,
-                Slug = a.Slug,
-                CreatedDate = a.CreatedDate,
-                ArticleLikeCount=a.Likes.Count,
-                IsLiked=a.IsLiked
-                
-                
+                Id = article.Id,
+                Title = article.Title,
+                Content = article.Content,
+                Slug = article.Slug,
+                CreatedDate = article.CreatedDate,
+                ArticleLikeCount = article.Likes.Count,
+                IsLiked = article.IsLiked,
+                AuthorName = article.Author.FullName,
+                MediaFiles = article.Media.Select(m => new MediaDto
+                {
+                    Id = m.Id,
+                    Url = m.Url,
+                    Type = m.Type
+                }).ToList(),
+                Comments = article.Comments.Select(x => new ReadCommentDto
+                {
+                    ArticleTitle = x.Article.Title,
+                    CreatedDate = x.CreatedDate,
+                    Content = x.Content,
+                    Id = x.Id,
+                    UserName = x.User != null ? x.User.Username : "Anonim"
+                }).ToList()
             }).AsQueryable();
             return new BaseResponse<IQueryable<ReadArticleDtos>>
             {
                 IsSuccess = true,
                 Message = "Başarıyla getirildi",
-                Data = articleDtos,
+                Data = articleDto,
                 ErrroCode = null
             };
 
